@@ -1,0 +1,108 @@
+openapi: 3.1.0
+info:
+  title: IDD BIM CPG Namecard Intake
+  version: 1.0.0
+  description: >-
+    Internal namecard intake action. It stores structured business-card data,
+    applies duplicate rules, updates the master Google Sheet, and archives an
+    image when image bytes or a fetchable image URL are available to the action.
+servers:
+  - url: https://script.google.com/macros/s/AKfycbxO-vRSFGHc8IU6esuACbXmabInZwpem2yloquIsawcMuoBg5cRklKsMow86JHpNuai/exec
+paths:
+  /:
+    post:
+      operationId: processNamecard
+      summary: Process one business card
+      description: >-
+        Submit one extracted business card. The backend performs duplicate
+        detection and decides NEW, MERGED, or REVIEW. Never invent image_base64
+        or image_url. If the uploaded chat image cannot be passed to the action,
+        omit the image fields.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [action, card]
+              properties:
+                action:
+                  type: string
+                  const: processNamecard
+                source_file_name:
+                  type: string
+                  description: Original filename shown in the chat, when known.
+                uploader:
+                  type: string
+                  description: Optional user or team label. Use ChatGPT Business if unknown.
+                ocr_confidence:
+                  type: number
+                  minimum: 0
+                  maximum: 100
+                image_base64:
+                  type: string
+                  description: Optional raw base64 or data URL for the original image. Omit if unavailable.
+                image_mime_type:
+                  type: string
+                  description: Optional MIME type, e.g. image/jpeg.
+                image_url:
+                  type: string
+                  format: uri
+                  description: Optional fetchable URL to the original image. Omit if unavailable.
+                card:
+                  $ref: '#/components/schemas/Namecard'
+      responses:
+        '200':
+          description: Processing result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessResult'
+components:
+  schemas:
+    Namecard:
+      type: object
+      additionalProperties: false
+      required: [full_name]
+      properties:
+        full_name: {type: string, description: Full name exactly as confidently read from the card.}
+        normalized_name: {type: string}
+        salutation: {type: string}
+        title_vi: {type: string}
+        title_en: {type: string}
+        seniority: {type: string}
+        department: {type: string}
+        company: {type: string}
+        short_company: {type: string}
+        industry_1: {type: string}
+        industry_2: {type: string}
+        country: {type: string}
+        city: {type: string}
+        address: {type: string}
+        mobile: {type: string}
+        phone: {type: string}
+        fax: {type: string}
+        primary_email: {type: string}
+        secondary_email: {type: string}
+        website: {type: string}
+        crm_role: {type: string}
+        language: {type: string}
+        confidence: {type: string, enum: [High, Medium, Low]}
+        review_note: {type: string}
+    ProcessResult:
+      type: object
+      properties:
+        ok: {type: boolean}
+        status: {type: string, enum: [NEW, MERGED, REVIEW]}
+        contact_id: {type: string}
+        card_id: {type: string}
+        review_id: {type: string}
+        duplicate_score: {type: number}
+        duplicate_reason: {type: string}
+        image_saved: {type: boolean}
+        image_status: {type: string}
+        image_url: {type: string}
+        data_version: {type: string}
+        message: {type: string}
+        error: {type: string}

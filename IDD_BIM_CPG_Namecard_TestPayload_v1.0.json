@@ -1,0 +1,26 @@
+{
+  "action": "processNamecard",
+  "source_file_name": "test_new_card.jpg",
+  "uploader": "ChatGPT Business",
+  "ocr_confidence": 98,
+  "card": {
+    "full_name": "TEST CONTACT - DELETE AFTER POC",
+    "normalized_name": "TEST CONTACT DELETE AFTER POC",
+    "title_vi": "Giám đốc thử nghiệm",
+    "title_en": "Test Director",
+    "seniority": "Director",
+    "department": "Business Development",
+    "company": "CPG POC Test Company",
+    "short_company": "CPG POC",
+    "industry_1": "Architecture / Engineering",
+    "country": "Vietnam",
+    "city": "Hanoi",
+    "mobile": "+84 999 000 001",
+    "primary_email": "poc-namecard-test@example.com",
+    "website": "example.com",
+    "crm_role": "Decision Maker",
+    "language": "Vietnamese / English",
+    "confidence": "High",
+    "review_note": "PoC record. Delete after validation."
+  }
+}
