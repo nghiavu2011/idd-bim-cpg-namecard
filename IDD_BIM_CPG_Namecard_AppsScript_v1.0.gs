@@ -18,10 +18,10 @@ const CONFIG = {
   DEFAULT_SECRET_KEY: 'PATH_SECRET',
   
   // Corporate Email Domain whitelist:
-  ALLOWED_DOMAINS: ['cpgcorp.com.sg', 'cpg.com.vn', 'cpg.sg', 'cpgconsultants.com'],
+  ALLOWED_DOMAINS: ['cpgcorp.com.sg'],
   
   // Super Admin emails with full management & delete permissions:
-  ADMIN_EMAILS: ['vu.trong.nghia@cpgcorp.com.sg', 'nghiavu2011@gmail.com', 'nghia.vu@cpgcorp.com.sg']
+  ADMIN_EMAILS: ['vu.trong.nghia@cpgcorp.com.sg']
 };
 
 // 27-Column Master Schema Definition
@@ -811,3 +811,12 @@ function jsonResponse(data, statusCode) {
   output.setMimeType(ContentService.MimeType.JSON);
   return output;
 }
+
+/**
+ * Run testSendOtp() directly in Google Apps Script editor to authorize Mail permissions & test sending email
+ */
+function testSendOtp() {
+  const res = handleRequestOtp('vu.trong.nghia@cpgcorp.com.sg');
+  Logger.log('Test OTP Result: ' + JSON.stringify(res));
+}
+
