@@ -597,6 +597,8 @@ body{font-size:14px;line-height:1.45}
     <button class="navbtn" data-view="companies"><svg class="icon"><use href="#i-building"/></svg><span class="label">Công ty</span><span class="navcount" id="nCompanies">0</span></button>
   </nav>
   <div class="topactions">
+    <div id="userBadge" style="display:none;align-items:center;gap:6px;font-size:12px;font-weight:750;color:#4a5568;background:#fff;border:1px solid #d8dde6;border-radius:999px;padding:4px 11px;"></div>
+    <button class="btn small" id="logoutBtn" style="display:none;font-size:11px;padding:0 8px;" title="Đăng xuất">Thoát</button>
     <button class="btn primary" id="addBtn"><svg class="icon"><use href="#i-plus"/></svg><span>Quét namecard</span></button>
     <button class="iconbtn" id="moreBtn" aria-label="Thêm"><svg class="icon"><use href="#i-more"/></svg></button>
   </div>
@@ -660,6 +662,40 @@ body{font-size:14px;line-height:1.45}
 <div class="modal" id="sourceModal"><div class="modal-head"><div><h2 id="sourceTitle">Ảnh nguồn</h2><p>Ảnh chụp batch gốc để đối chiếu.</p></div><button class="iconbtn" data-close-source><svg class="icon"><use href="#i-x"/></svg></button></div><div class="modal-body"><img id="sourceImage" class="source-modal-img" alt="Ảnh nguồn" /></div></div>
 
 <div class="modal channel-modal" id="mobileModal"><div class="modal-head"><div><h2>Liên hệ qua số di động</h2><p>Chọn ứng dụng phù hợp. Dịch vụ ngoài chỉ được mở sau khi bạn bấm.</p></div><button class="iconbtn" data-close-mobile><svg class="icon"><use href="#i-x"/></svg></button></div><div class="modal-body"><div class="channel-number"><div class="channel-icon"><svg class="icon"><use href="#i-phone"/></svg></div><div><b id="mobileActionNumber">—</b><span id="mobileActionName">—</span></div></div><div class="channel-grid" id="mobileActions"></div><p class="channel-note">Zalo / WhatsApp mở trang hoặc ứng dụng tương ứng; Viber sử dụng liên kết ứng dụng. Tùy thiết bị, trình duyệt có thể hỏi xác nhận trước khi mở app.</p></div></div>
+
+<!-- CPG Corporate Email Passcode Gate -->
+<div class="modal" id="authModal" style="max-width:440px;z-index:9999;box-shadow:0 30px 90px rgba(13,23,38,.48);">
+  <div class="modal-head" style="text-align:center;display:block;padding:26px 22px 14px;border-bottom:1px solid #edf0f5;">
+    <div style="width:68px;height:48px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:14px;border:1px solid #d8dde6;box-shadow:0 6px 18px rgba(0,0,0,.06);padding:4px;">
+      <img id="authLogo" src="" alt="CPG" style="max-width:92%;max-height:92%;object-fit:contain;" />
+    </div>
+    <h2 style="font-size:20px;font-weight:800;margin:0 0 6px;color:#17141b;letter-spacing:-.02em;">IDD BIM CPG Namecard</h2>
+    <p style="font-size:12px;color:#6b7280;margin:0;line-height:1.5;">Thư viện danh bạ danh thiếp nội bộ. Xác thực bằng email công ty CPG để nhận mã OTP.</p>
+  </div>
+  <div class="modal-body" style="padding:18px 22px 26px;">
+    <div id="authStep1">
+      <div class="field full" style="margin-bottom:14px;">
+        <label style="font-size:11px;font-weight:760;color:#556170;margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.06em;">Email công ty CPG của bạn</label>
+        <input type="email" id="authEmailInput" placeholder="vu.trong.nghia@cpgcorp.com.sg" style="width:100%;height:44px;padding:0 12px;border-radius:10px;border:1px solid #d8dde6;font-size:13px;outline:0;" />
+      </div>
+      <button class="btn primary" id="authGetOtpBtn" type="button" style="width:100%;height:44px;font-size:13px;font-weight:750;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+        <span>Nhận mã xác thực qua Email</span>
+      </button>
+    </div>
+    <div id="authStep2" style="display:none;">
+      <div class="field full" style="margin-bottom:14px;">
+        <label style="font-size:11px;font-weight:760;color:#556170;margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.06em;">Nhập mã OTP 6 chữ số từ hòm thư</label>
+        <input type="text" id="authOtpInput" maxlength="6" placeholder="• • • • • •" style="width:100%;height:48px;text-align:center;letter-spacing:6px;font-size:20px;font-weight:800;border-radius:10px;border:1.5px solid #f4a61c;background:#fffcf5;outline:0;color:#17141b;" />
+      </div>
+      <button class="btn primary" id="authVerifyOtpBtn" type="button" style="width:100%;height:44px;font-size:13px;font-weight:750;border-radius:10px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;">
+        <span>Xác nhận & Vào thư viện</span>
+      </button>
+      <button class="btn ghost small" id="authBackBtn" type="button" style="width:100%;color:#6b7280;font-size:11px;">Đổi email khác</button>
+    </div>
+    <div id="authMsg" style="font-size:12px;margin-top:12px;text-align:center;min-height:16px;line-height:1.4;"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <svg width="0" height="0" style="position:absolute"><defs>
@@ -1214,18 +1250,189 @@ saveEdit=function(){
 };
 $('#saveBtn').onclick=saveEdit;
 
+let currentUserSession=null;
+
+function initAuth(){
+  const logo=$('#authLogo');
+  if(logo)logo.src=CPG_LOGO;
+  
+  const saved=localStorage.getItem('cpg_auth_session');
+  if(saved){
+    try{
+      currentUserSession=JSON.parse(saved);
+      if(currentUserSession&&currentUserSession.email){
+        applyUserSessionUI(currentUserSession);
+        return;
+      }
+    }catch(e){}
+  }
+  showAuthModal();
+}
+
+function showAuthModal(){
+  $('#overlay').classList.add('show');
+  $('#authModal').classList.add('show');
+  $('#authStep1').style.display='block';
+  $('#authStep2').style.display='none';
+  $('#authMsg').innerHTML='';
+  $('#authEmailInput').focus();
+}
+
+function hideAuthModal(){
+  $('#authModal').classList.remove('show');
+  if(!$('#drawer').classList.contains('open')&&!$('#editModal').classList.contains('show')&&!$('#sourceModal').classList.contains('show')&&!$('#mobileModal').classList.contains('show')){
+    $('#overlay').classList.remove('show');
+  }
+}
+
+function applyUserSessionUI(sess){
+  const badge=$('#userBadge');
+  const logoutBtn=$('#logoutBtn');
+  if(badge){
+    badge.style.display='inline-flex';
+    badge.innerHTML=sess.is_admin
+      ? `<span style="color:#d97706;font-size:13px;">👑 Admin:</span> <span style="max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(sess.email)}</span>`
+      : `<span style="color:#2563eb;font-size:13px;">👤</span> <span style="max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(sess.email)}</span>`;
+  }
+  if(logoutBtn) logoutBtn.style.display='inline-flex';
+  
+  // Non-admin staff cannot delete master records or reset
+  if(!sess.is_admin){
+    if($('#deleteBtn'))$('#deleteBtn').style.display='none';
+    if($('#resetBtn'))$('#resetBtn').style.display='none';
+  } else {
+    if($('#deleteBtn'))$('#deleteBtn').style.display='inline-flex';
+    if($('#resetBtn'))$('#resetBtn').style.display='flex';
+  }
+  hideAuthModal();
+}
+
+// Auth Event handlers
+$('#authGetOtpBtn')?.addEventListener('click',async()=>{
+  const email=$('#authEmailInput').value.trim();
+  const msg=$('#authMsg');
+  if(!email||!email.includes('@')){
+    msg.innerHTML='<span style="color:#dc2626;">Vui lòng nhập đúng địa chỉ email.</span>';
+    return;
+  }
+  
+  msg.innerHTML='<span style="color:#4b5563;">Đang kết nối và gửi mã xác thực tới hòm thư...</span>';
+  $('#authGetOtpBtn').disabled=true;
+  
+  try{
+    const res=await fetch(APPS_SCRIPT_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({action:'requestOtp',email:email})
+    }).then(r=>r.json());
+    
+    $('#authGetOtpBtn').disabled=false;
+    if(res&&res.ok){
+      $('#authStep1').style.display='none';
+      $('#authStep2').style.display='block';
+      msg.innerHTML=`<span style="color:#059669;font-weight:600;">Đã gửi mã 6 số tới <b>${esc(email)}</b>. Vui lòng kiểm tra hộp thư.</span>`;
+      $('#authOtpInput').value='';
+      $('#authOtpInput').focus();
+    }else{
+      msg.innerHTML=`<span style="color:#dc2626;">${esc(res.error||'Không thể gửi mã. Vui lòng thử lại.')}</span>`;
+    }
+  }catch(err){
+    $('#authGetOtpBtn').disabled=false;
+    msg.innerHTML='<span style="color:#dc2626;">Lỗi kết nối máy chủ xác thực.</span>';
+  }
+});
+
+$('#authVerifyOtpBtn')?.addEventListener('click',async()=>{
+  const email=$('#authEmailInput').value.trim();
+  const otp=$('#authOtpInput').value.trim();
+  const msg=$('#authMsg');
+  if(!otp||otp.length<6){
+    msg.innerHTML='<span style="color:#dc2626;">Vui lòng nhập đủ 6 chữ số mã OTP.</span>';
+    return;
+  }
+  
+  msg.innerHTML='<span style="color:#4b5563;">Đang kiểm tra mã xác thực...</span>';
+  $('#authVerifyOtpBtn').disabled=true;
+  
+  try{
+    const res=await fetch(APPS_SCRIPT_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({action:'verifyOtp',email:email,otp:otp})
+    }).then(r=>r.json());
+    
+    $('#authVerifyOtpBtn').disabled=false;
+    if(res&&res.ok){
+      currentUserSession=res;
+      localStorage.setItem('cpg_auth_session',JSON.stringify(res));
+      applyUserSessionUI(res);
+      toast(currentLang==='en'?'Logged in successfully!':'Đăng nhập thành công!');
+      syncLiveSheetData();
+    }else{
+      msg.innerHTML=`<span style="color:#dc2626;">${esc(res.error||'Mã xác thực không hợp lệ.')}</span>`;
+    }
+  }catch(err){
+    $('#authVerifyOtpBtn').disabled=false;
+    msg.innerHTML='<span style="color:#dc2626;">Lỗi kiểm tra xác thực.</span>';
+  }
+});
+
+$('#authBackBtn')?.addEventListener('click',()=>{
+  $('#authStep2').style.display='none';
+  $('#authStep1').style.display='block';
+  $('#authMsg').innerHTML='';
+  $('#authEmailInput').focus();
+});
+
+$('#logoutBtn')?.addEventListener('click',()=>{
+  if(confirm(currentLang==='en'?'Are you sure you want to log out?':'Bạn có chắc muốn đăng xuất?')){
+    localStorage.removeItem('cpg_auth_session');
+    currentUserSession=null;
+    $('#userBadge').style.display='none';
+    $('#logoutBtn').style.display='none';
+    showAuthModal();
+  }
+});
+
+// Real-time live synchronization for all employees & devices
 async function syncLiveSheetData(){
   try{
     const res=await fetch(APPS_SCRIPT_URL);
     if(!res.ok)return;
     const data=await res.json();
+    let hasUpdate=false;
+    
     if(data&&data.ok&&Array.isArray(data.contacts)&&data.contacts.length>0){
       contacts=data.contacts;
-      render();
-      console.log('Live synced from Google Sheet:',data.total_contacts,'contacts');
+      hasUpdate=true;
     }
-  }catch(e){console.log('Offline/cached mode active');}
+    
+    if(data&&data.ok&&Array.isArray(data.physical_cards)&&data.physical_cards.length>0){
+      data.physical_cards.forEach(serverCard=>{
+        const existIdx=PHYSICAL_CARDS.findIndex(x=>x.Card_ID===serverCard.Card_ID);
+        if(existIdx>=0){
+          if(serverCard.Image&&serverCard.Image.startsWith('http')) PHYSICAL_CARDS[existIdx].Image=serverCard.Image;
+        }else{
+          PHYSICAL_CARDS.push(serverCard);
+        }
+      });
+      refreshCardDuplicateFlags();
+      hasUpdate=true;
+    }
+    
+    if(hasUpdate){
+      persist();
+      render();
+      console.log('Realtime synced:',contacts.length,'contacts,',PHYSICAL_CARDS.length,'cards');
+    }
+  }catch(e){
+    console.log('Background sync active');
+  }
 }
+
+// Auto-sync every 20 seconds and on window focus
+setInterval(syncLiveSheetData,20000);
+window.addEventListener('focus',syncLiveSheetData);
 
 function updateScannerLanguage(){
   if($('#scanTitle'))$('#scanTitle').textContent=scanT('title');if($('#scanHint'))$('#scanHint').textContent=scanT('hint');if($('#scanBrowse'))$('#scanBrowse').textContent=scanT('browse');if($('#scanAgain'))$('#scanAgain').textContent=scanT('again');if($('#scanClear'))$('#scanClear').textContent=scanT('clear');
@@ -1312,6 +1519,7 @@ applyI18n=function(){
 loadScannedCards();
 
 initBranding();
+initAuth();
 applyI18n();
 
 render();
