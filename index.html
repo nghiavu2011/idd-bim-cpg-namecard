@@ -1024,8 +1024,7 @@ function fillFromScan(p,dup){
   put('#fCity',p.city,'Thành phố');
   $('#fConfidence').value=p.confidence||val(existing,'Độ tin cậy')||'High';
   if(!$('#fSource').value)$('#fSource').value=pendingScanSource;
-  const note=currentLang==='en'?'Auto-extracted by Gemini AI. Synced to Sheet & Drive.':'Trích xuất tự động bởi Gemini Flash AI. Tự động lưu Sheet & Drive.';
-  $('#fNote').value=[val(existing,'Ghi chú kiểm tra'),p.review_note,note].filter(Boolean).join(' · ');
+  $('#fNote').value=[val(existing,'Ghi chú kiểm tra'),p.review_note].filter(Boolean).join(' · ');
 }
 
 async function callGeminiVision(base64Image){
@@ -1055,9 +1054,11 @@ async function callGeminiVision(base64Image){
   "crm_role": "Decision Maker / Commercial / Technical Influencer / Partner",
   "language": "Vietnamese / English",
   "confidence": "High",
-  "review_note": "Ghi chú nếu có chi tiết cần lưu ý"
+  "review_note": ""
 }
-Chỉ trả về JSON thuần túy, không có code block.`;
+LƯU Ý QUAN TRỌNG:
+1. Trường review_note: Chỉ ghi chú nếu có chữ bị mờ hoặc không đọc rõ. Nếu card rõ ràng thì BẮT BUỘC để trống chuỗi rỗng "" (TUYỆT ĐỐI KHÔNG mô tả hình dáng bên ngoài, giá đỡ, chồng thẻ hay bố cục ảnh).
+2. Chỉ trả về JSON thuần túy, không có code block markdown.`;
 
   const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${GEMINI_API_KEY}`;
   const response=await fetch(url,{
