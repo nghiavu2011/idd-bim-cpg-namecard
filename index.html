@@ -1405,44 +1405,91 @@ $('#logoutBtn')?.addEventListener('click',()=>{
   }
 });
 
-// Real-time live synchronization for all employees & devices
+const SPREADSHEET_ID='13XsLUK792UkdDuXYHSdjIGJPX7AazQt6hROtTa0LRCI';
+
+async function parseSheetTab(tabName){
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(tabName)}&t=${Date.now()}`;
+    const res=await fetch(url);
+    if(!res.ok) return [];
+    const text=await res.text();
+    const match=text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
+    if(!match) return [];
+    const data=JSON.parse(match[1]);
+    const cols=(data.table?.cols||[]).map(c=>c.label||'');
+    const rows=[];
+    (data.table?.rows||[]).forEach(r=>{
+      const obj={};
+      cols.forEach((col,idx)=>{
+        if(!col) return;
+        const cell=r.c?.[idx];
+        let v='';
+        if(cell){
+          v=cell.f!==undefined?cell.f:(cell.v!==null&&cell.v!==undefined?String(cell.v):'');
+        }
+        obj[col]=v;
+      });
+      if(Object.values(obj).some(val=>val.trim()!=='')) rows.push(obj);
+    });
+    return rows;
+  }catch(e){return [];}
+}
+
+// Real-time live synchronization directly from Master Google Sheet
 async function syncLiveSheetData(){
   try{
-    const res=await fetch(APPS_SCRIPT_URL);
-    if(!res.ok)return;
-    const data=await res.json();
+    const sheetContacts = await parseSheetTab('Namecard_CRM_Contacts');
+    const sheetCards = await parseSheetTab('Cards_Inbox');
     let hasUpdate=false;
     
-    if(data&&data.ok&&Array.isArray(data.contacts)&&data.contacts.length>0){
-      contacts=data.contacts;
-      hasUpdate=true;
+    if(Array.isArray(sheetContacts) && sheetContacts.length > 0){
+      contacts = sheetContacts;
+      hasUpdate = true;
     }
     
-    if(data&&data.ok&&Array.isArray(data.physical_cards)&&data.physical_cards.length>0){
-      data.physical_cards.forEach(serverCard=>{
-        const existIdx=PHYSICAL_CARDS.findIndex(x=>x.Card_ID===serverCard.Card_ID);
-        if(existIdx>=0){
-          if(serverCard.Image&&serverCard.Image.startsWith('http')) PHYSICAL_CARDS[existIdx].Image=serverCard.Image;
-        }else{
-          PHYSICAL_CARDS.push(serverCard);
+    if(Array.isArray(sheetCards) && sheetCards.length > 0){
+      sheetCards.forEach(c=>{
+        const cardId = c['Card_ID'] || '';
+        const contactId = c['Contact_ID'] || '';
+        const driveImg = c['Drive_Direct_URL'] || c['Drive_View_URL'] || '';
+        if(!cardId) return;
+        
+        const existIdx = PHYSICAL_CARDS.findIndex(x => x.Card_ID === cardId);
+        if(existIdx >= 0){
+          if(driveImg && (!PHYSICAL_CARDS[existIdx].Image || !PHYSICAL_CARDS[existIdx].Image.startsWith('http'))) {
+            PHYSICAL_CARDS[existIdx].Image = driveImg;
+          }
+        } else {
+          const matchContact = contacts.find(x => val(x, 'Contact_ID') === contactId) || {};
+          PHYSICAL_CARDS.push({
+            Card_ID: cardId,
+            Source: c['Source_File_Name'] || cardId,
+            Contact_ID: contactId,
+            Name: val(matchContact, 'Họ tên') || 'Contact ' + contactId,
+            Company: val(matchContact, 'Tên ngắn') || val(matchContact, 'Công ty / Tổ chức') || '',
+            Title: val(matchContact, 'Chức danh (VI)') || val(matchContact, 'Job Title (EN)') || '',
+            Duplicate: false,
+            Duplicate_Count: 1,
+            Image: driveImg || ''
+          });
         }
       });
       refreshCardDuplicateFlags();
-      hasUpdate=true;
+      hasUpdate = true;
     }
     
     if(hasUpdate){
       persist();
       render();
-      console.log('Realtime synced:',contacts.length,'contacts,',PHYSICAL_CARDS.length,'cards');
+      console.log('Realtime live synced from Google Sheet:', contacts.length, 'contacts,', PHYSICAL_CARDS.length, 'cards');
     }
   }catch(e){
     console.log('Background sync active');
   }
 }
 
-// Auto-sync every 20 seconds and on window focus
-setInterval(syncLiveSheetData,20000);
+// Auto-sync every 15 seconds and on window focus
+setInterval(syncLiveSheetData,15000);
 window.addEventListener('focus',syncLiveSheetData);
 
 function updateScannerLanguage(){
