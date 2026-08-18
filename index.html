@@ -987,44 +987,65 @@ function translateCountry(val, lang = currentLang) {
   if (!val) return '';
   const key = String(val).trim().toLowerCase();
   if (COUNTRY_MAP[key]) return COUNTRY_MAP[key][lang] || COUNTRY_MAP[key].en;
-  return val;
+  return lang === 'en' ? removeVietnameseTones(val) : val;
 }
 
 function translateCity(val, lang = currentLang) {
   if (!val) return '';
   const key = String(val).trim().toLowerCase();
   if (CITY_MAP[key]) return CITY_MAP[key][lang] || CITY_MAP[key].en;
-  return val;
+  return lang === 'en' ? removeVietnameseTones(val) : val;
+}
+
+function removeVietnameseTones(str) {
+  if (!str) return '';
+  str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, 'a');
+  str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, 'e');
+  str = str.replace(/ì|í|ị|ỉ|ĩ/g, 'i');
+  str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, 'o');
+  str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, 'u');
+  str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, 'y');
+  str = str.replace(/đ/g, 'd');
+  str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, 'A');
+  str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, 'E');
+  str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, 'I');
+  str = str.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, 'O');
+  str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, 'U');
+  str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, 'Y');
+  str = str.replace(/Đ/g, 'D');
+  return str;
 }
 
 function translateAddress(addr, lang = currentLang) {
   if (!addr) return '';
   if (lang !== 'en') return addr;
   let s = String(addr);
-  s = s.replace(/\bTầng\s+(\d+)/gi, 'Floor $1')
+  s = s.replace(/\bTầng\s+(\d+)/gi, (_, n) => 'Floor ' + n)
        .replace(/\bTầng\s+trệt\b/gi, 'Ground Floor')
        .replace(/\bTòa\s+nhà\s+/gi, 'Building ')
        .replace(/\bTòa\s+/gi, 'Building ')
-       .replace(/\bSố\s+(\d+)/gi, 'No. $1')
-       .replace(/\bPhố\s+/gi, 'Street, ')
-       .replace(/\bĐường\s+/gi, 'Street, ')
-       .replace(/\bQuận\s+/gi, 'District, ')
-       .replace(/\bQ\.\s*/gi, 'District, ')
-       .replace(/\bHuyện\s+/gi, 'District, ')
-       .replace(/\bPhường\s+/gi, 'Ward, ')
-       .replace(/\bP\.\s*/gi, 'Ward, ')
-       .replace(/\bXã\s+/gi, 'Commune, ')
-       .replace(/\bTỉnh\s+/gi, 'Province, ')
-       .replace(/\bThành\s+phố\s+/gi, 'City, ')
-       .replace(/\bTP\.\s*/gi, 'City, ')
-       .replace(/\bKhu\s+kinh\s+tế\s+/gi, 'Economic Zone, ')
-       .replace(/\bKhu\s+công\s+nghiệp\s+/gi, 'Industrial Park, ')
+       .replace(/\bSố\s+(\d+[a-zA-Z]?)/gi, (_, n) => 'No. ' + n)
+       .replace(/\bKhu\s+kinh\s+tế\s+/gi, 'Economic Zone ')
+       .replace(/\bKhu\s+công\s+nghiệp\s+/gi, 'Industrial Park ')
+       .replace(/\bKhu\s+đô\s+thị\s+/gi, 'Urban Area ')
+       .replace(/\bPhường\s+/gi, 'Ward ')
+       .replace(/\bP\.\s*/gi, 'Ward ')
+       .replace(/\bQuận\s+/gi, 'District ')
+       .replace(/\bQ\.\s*/gi, 'District ')
+       .replace(/\bHuyện\s+/gi, 'District ')
+       .replace(/\bXã\s+/gi, 'Commune ')
+       .replace(/\bThành\s+phố\s+/gi, 'City ')
+       .replace(/\bTP\.\s*/gi, 'City ')
+       .replace(/\bTỉnh\s+/gi, 'Province ')
+       .replace(/\bPhố\s+/gi, 'Street ')
+       .replace(/\bĐường\s+/gi, 'Street ')
        .replace(/\bViệt\s*Nam\b/gi, 'Vietnam')
+       .replace(/\bHa\s*Noi\b/gi, 'Hanoi')
        .replace(/\bHà\s*Nội\b/gi, 'Hanoi')
-       .replace(/\bHồ\s*Chí\s*Minh\b/gi, 'Ho Chi Minh City')
-       .replace(/\s*,\s*,+/g, ', ')
-       .replace(/\s+/g, ' ')
-       .trim();
+       .replace(/\bHồ\s*Chí\s*Minh\b/gi, 'Ho Chi Minh City');
+
+  s = removeVietnameseTones(s);
+  s = s.replace(/\s*,\s*,+/g, ', ').replace(/\s+/g, ' ').trim();
   return s;
 }
 
@@ -1300,9 +1321,9 @@ contactRows = function(rows){ if(!rows.length) return `<div class="empty"><b>${t
 contactGrid = function(rows){ if(!rows.length) return `<div class="empty"><b>${t('emptyResults')}</b>${t('emptyTry')}</div>`; return `<div class="company-grid">${rows.map(c=>`<article class="company-card" data-contact="${esc(val(c,'Contact_ID'))}" style="cursor:pointer"><div class="company-top"><div class="person"><div class="avatar">${initials(val(c,'Họ tên'))}</div><div><b>${esc(val(c,'Họ tên'))}</b><div class="sub">${esc(val(c,'Chức danh (VI)')||val(c,'Job Title (EN)'))}</div></div></div>${confidencePill(c)}</div><h3>${smartCompany(c)}</h3><p>${esc(val(c,'Ngành cấp 1'))}</p><div class="quick-link-row">${val(c,'Mobile')?smartMobile(c):''}${val(c,'Email chính')?smartEmail(val(c,'Email chính')):''}</div><div class="company-stats"><div class="company-stat"><b>${cardCount(val(c,'Contact_ID'))}</b><span>${t('companyCards')}</span></div><div class="company-stat"><b>${val(c,'Quốc gia')||'—'}</b><span>${t('country')}</span></div><div class="company-stat"><b>${roleBucket(val(c,'Vai trò CRM')).includes('Decision')?'DM':'—'}</b><span>${t('role')}</span></div></div></article>`).join('')}</div>`; };
 renderContacts = function(){ let rows=currentFilteredContacts(); $('#content').innerHTML=displayMode==='grid'?contactGrid(rows):contactRows(rows); $('#resultMeta').textContent=t('resultContacts',{shown:rows.length,total:contacts.length}); };
 renderCards = function(){ let q=norm($('#search').value); let allowed=new Set(currentFilteredContacts().map(c=>val(c,'Contact_ID'))); let rows=PHYSICAL_CARDS.filter(c=>allowed.has(c.Contact_ID)&&(!q||norm([c.Name,c.Company,c.Title,c.Source,c.Card_ID].join(' ')).includes(q))); $('#content').innerHTML=rows.length?`<div class="cards-grid">${rows.map(c=>`<article class="card-tile" data-card="${esc(c.Card_ID)}" data-contact="${esc(c.Contact_ID)}"><div class="card-image-wrap"><img src="${c.Image}" alt="${esc(c.Name)}"/><span class="source-badge">${esc(c.Source)}</span>${c.Duplicate?`<span class="duplicate-badge">DUPLICATE</span>`:''}</div><div class="card-meta"><b>${esc(c.Name)}</b><div class="company"><a class="smart-link company-link" data-smart href="${googleSearchUrl(c.Company)}" target="_blank" rel="noopener noreferrer" title="Google"><span class="link-text">${esc(c.Company)}</span>${externalIcon('i-search')}</a></div><div class="sub">${esc(c.Title)}</div><div class="card-foot"><span>${esc(c.Card_ID)}</span><span>${c.Duplicate_Count>1?t('cardsToContact',{count:c.Duplicate_Count}):t('uniqueCard')}</span></div></div></article>`).join('')}</div>`:`<div class="empty"><b>${t('noCardMatch')}</b>${t('noCardTry')}</div>`; $('#resultMeta').textContent=t('resultCards',{shown:rows.length,total:PHYSICAL_CARDS.length}); };
-renderCompanies = function(){ let all=companies(),q=norm($('#search').value); let rows=all.filter(x=>!q||norm([x.name,x.short,x.industry,x.country,x.city,...x.contacts.map(c=>c['Họ tên'])].join(' ')).includes(q)); $('#content').innerHTML=rows.length?`<div class="company-grid">${rows.map(x=>`<article class="company-card"><div class="company-top"><div class="company-logo">${initials(x.short||x.name)}</div>${x.decision?pill(`${x.decision} Decision Maker`,'blue'):''}</div><h3><a class="company-search" data-smart href="${googleSearchUrl(x.name)}" target="_blank" rel="noopener noreferrer" title="Google">${esc(x.short||x.name)} ${externalIcon('i-search')}</a></h3><p>${esc(x.name)}</p><p style="margin-top:6px">${esc(x.industry)} · ${esc([x.city,x.country].filter(Boolean).join(', '))}</p><div class="company-stats"><div class="company-stat"><b>${x.contacts.length}</b><span>${t('companyContacts')}</span></div><div class="company-stat"><b>${x.decision}</b><span>${t('companyDecision')}</span></div><div class="company-stat"><b>${x.contacts.reduce((a,c)=>a+cardCount(c.Contact_ID),0)}</b><span>${t('companyCards')}</span></div></div><div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">${x.contacts.map(c=>`<button class="pill" data-contact="${esc(c.Contact_ID)}" style="border:0;cursor:pointer">${esc(c['Họ tên'])}</button>`).join('')}</div></article>`).join('')}</div>`:`<div class="empty"><b>${t('noCompanies')}</b>${t('emptyTry')}</div>`; $('#resultMeta').textContent=t('resultCompanies',{count:rows.length}); };
+renderCompanies = function(){ let all=companies(),q=norm($('#search').value); let rows=all.filter(x=>!q||norm([x.name,x.short,x.industry,translateCountry(x.country,currentLang),translateCity(x.city,currentLang),...x.contacts.map(c=>c['Họ tên'])].join(' ')).includes(q)); $('#content').innerHTML=rows.length?`<div class="company-grid">${rows.map(x=>`<article class="company-card"><div class="company-top"><div class="company-logo">${initials(x.short||x.name)}</div>${x.decision?pill(`${x.decision} Decision Maker`,'blue'):''}</div><h3><a class="company-search" data-smart href="${googleSearchUrl(x.name)}" target="_blank" rel="noopener noreferrer" title="Google">${esc(x.short||x.name)} ${externalIcon('i-search')}</a></h3><p>${esc(x.name)}</p><p style="margin-top:6px">${esc(x.industry)} · ${esc([translateCity(x.city,currentLang),translateCountry(x.country,currentLang)].filter(Boolean).join(', '))}</p><div class="company-stats"><div class="company-stat"><b>${x.contacts.length}</b><span>${t('companyContacts')}</span></div><div class="company-stat"><b>${x.decision}</b><span>${t('companyDecision')}</span></div><div class="company-stat"><b>${x.contacts.reduce((a,c)=>a+cardCount(c.Contact_ID),0)}</b><span>${t('companyCards')}</span></div></div><div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">${x.contacts.map(c=>`<button class="pill" data-contact="${esc(c.Contact_ID)}" style="border:0;cursor:pointer">${esc(c['Họ tên'])}</button>`).join('')}</div></article>`).join('')}</div>`:`<div class="empty"><b>${t('noCompanies')}</b>${t('emptyTry')}</div>`; $('#resultMeta').textContent=t('resultCompanies',{count:rows.length}); };
 renderReview = function(){ let uncertain=reviewContacts(); let dups=contacts.filter(c=>cardCount(c.Contact_ID)>1); $('#content').innerHTML=`<div class="review-wrap"><div class="review-title"><h3>${t('reviewDataTitle')}</h3><span>${t('reviewContactCount',{count:uncertain.length})}</span></div><div class="review-list">${uncertain.length?uncertain.map(c=>`<div class="review-item"><div><b>${esc(c['Họ tên'])} · ${esc(c['Tên ngắn'])}</b><p>${esc(c['Ghi chú kiểm tra']||'')}</p></div><button class="btn small" data-contact="${esc(c.Contact_ID)}">${t('openProfile')}</button></div>`).join(''):`<div class="review-item"><div><b>${t('reviewNone')}</b><p>${t('reviewAllHigh')}</p></div></div>`}</div><div class="review-title"><h3>${t('dupGroups')}</h3><span>${t('dupGroupMeta',{contacts:dups.length,cards:duplicateCardCount()})}</span></div><div class="review-list">${dups.map(c=>`<div class="review-item"><div><b>${esc(c['Họ tên'])} · ${esc(c['Tên ngắn'])}</b><p>${t('dupLinked',{count:cardCount(c.Contact_ID),source:esc(c['Nguồn card'])})}</p></div><button class="btn small" data-contact="${esc(c.Contact_ID)}">${t('viewCards',{count:cardCount(c.Contact_ID)})}</button></div>`).join('')}</div></div>`; $('#resultMeta').textContent=t('resultReview',{need:uncertain.length,dup:dups.length}); };
-openMobileActions = function(number,name='',country=''){ let normalized=normalizePhone(number,country),digits=normalized.replace(/\D/g,''); $('#mobileActionNumber').textContent=number; $('#mobileActionName').textContent=[name,country].filter(Boolean).join(' · ')||t('chooseChannel'); let call=normalized||String(number).replace(/\s+/g,''); let actions=[{name:t('call'),sub:t('callSub'),badge:'TEL',href:`tel:${call}`},{name:t('sms'),sub:t('smsSub'),badge:'SMS',href:`sms:${call}`},{name:t('zalo'),sub:t('zaloSub'),badge:'ZA',href:`https://zalo.me/${digits}`,blank:true},{name:t('wa'),sub:t('waSub'),badge:'WA',href:`https://wa.me/${digits}`,blank:true},{name:t('viber'),sub:t('viberSub'),badge:'VI',href:`viber://chat?number=${encodeURIComponent(normalized)}`}]; $('#mobileActions').innerHTML=actions.map(a=>`<a class="channel-btn" data-smart href="${a.href}" ${a.blank?'target="_blank" rel="noopener noreferrer"':''}><span class="channel-badge">${a.badge}</span><span><b>${a.name}</b><small>${a.sub}</small></span></a>`).join('')+`<button class="channel-btn" data-copy="${esc(number)}"><span class="channel-badge">CP</span><span><b>${t('copy')}</b><small>${t('copySub')}</small></span></button>`; $('#mobileModal').classList.add('show'); $('#overlay').classList.add('show'); };
+openMobileActions = function(number,name='',country=''){ let normalized=normalizePhone(number,country),digits=normalized.replace(/\D/g,''); $('#mobileActionNumber').textContent=number; $('#mobileActionName').textContent=[name,translateCountry(country,currentLang)].filter(Boolean).join(' · ')||t('chooseChannel'); let call=normalized||String(number).replace(/\s+/g,''); let actions=[{name:t('call'),sub:t('callSub'),badge:'TEL',href:`tel:${call}`},{name:t('sms'),sub:t('smsSub'),badge:'SMS',href:`sms:${call}`},{name:t('zalo'),sub:t('zaloSub'),badge:'ZA',href:`https://zalo.me/${digits}`,blank:true},{name:t('wa'),sub:t('waSub'),badge:'WA',href:`https://wa.me/${digits}`,blank:true},{name:t('viber'),sub:t('viberSub'),badge:'VI',href:`viber://chat?number=${encodeURIComponent(normalized)}`}]; $('#mobileActions').innerHTML=actions.map(a=>`<a class="channel-btn" data-smart href="${a.href}" ${a.blank?'target="_blank" rel="noopener noreferrer"':''}><span class="channel-badge">${a.badge}</span><span><b>${a.name}</b><small>${a.sub}</small></span></a>`).join('')+`<button class="channel-btn" data-copy="${esc(number)}"><span class="channel-badge">CP</span><span><b>${t('copy')}</b><small>${t('copySub')}</small></span></button>`; $('#mobileModal').classList.add('show'); $('#overlay').classList.add('show'); };
 // Rebind elements whose handlers depend on text feedback
 $('#saveBtn').onclick = saveEdit; $('#deleteBtn').onclick = deleteContact; $('#resetBtn').onclick=()=>{ if(confirm(t('confirmReset'))){ contacts=structuredClone(ORIGINAL_CONTACTS); persist(); render(); toast(t('toastRestored')); } };
 document.addEventListener('click',e=>{ let cp=e.target.closest('[data-copy]'); if(cp){ e.preventDefault(); e.stopPropagation(); navigator.clipboard?.writeText(cp.dataset.copy); toast(t('toastCopied')); } });
@@ -2146,7 +2167,9 @@ contactRows=function(rows){
   return`<div class="tablewrap"><table><thead><tr><th>${t('tablePerson')}</th><th>${t('tableOrg')}</th><th>${t('tableRole')}</th><th>${t('tableContact')}</th><th>${t('tableLocation')}</th><th>${t('tableCards')}</th></tr></thead><tbody>${rows.map(c=>{
     let id=val(c,'Contact_ID'),cc=cardCount(id),em=val(c,'Email chính'),mob=val(c,'Mobile');
     let countryDisplay=translateCountry(val(c,'Quốc gia'),currentLang);
-    return`<tr class="data-row" data-contact="${esc(id)}"><td><div class="person"><div class="avatar">${initials(val(c,'Họ tên'))}</div><div><b>${esc(val(c,'Họ tên'))}</b><div class="sub">${esc(id)} · ${esc(val(c,'Cấp bậc'))}</div></div></div></td><td><div class="company">${smartCompany(c)}</div><div class="sub">${esc(displayJobTitle(c))}</div></td><td>${rolePill(c)}</td><td><div class="contact-stack">${mob?`<div class="contactline"><svg class="icon" style="width:13px;height:13px;color:#99a2b0"><use href="#i-phone"/></svg>${smartMobile(c,mob)}${copyBtn(mob)}</div>`:''}${em?`<div class="contactline sub"><svg class="icon" style="width:13px;height:13px"><use href="#i-mail"/></svg>${smartEmail(em)}${copyBtn(em)}</div>`:''}</div></td><td>${smartAddress(c)}<div class="sub">${!val(c,'Địa chỉ')?esc(countryDisplay):''}</div></td><td><div class="cardcount"><span class="mini-card-stack"></span>${cc}${cc>1?pill(t('linked'),'orange'):''}</div></td></tr>`
+    let cityDisplay=translateCity(val(c,'Thành phố'),currentLang);
+    let subDisplay=[cityDisplay,countryDisplay].filter(Boolean).join(', ');
+    return`<tr class="data-row" data-contact="${esc(id)}"><td><div class="person"><div class="avatar">${initials(val(c,'Họ tên'))}</div><div><b>${esc(val(c,'Họ tên'))}</b><div class="sub">${esc(id)} · ${esc(val(c,'Cấp bậc'))}</div></div></div></td><td><div class="company">${smartCompany(c)}</div><div class="sub">${esc(displayJobTitle(c))}</div></td><td>${rolePill(c)}</td><td><div class="contact-stack">${mob?`<div class="contactline"><svg class="icon" style="width:13px;height:13px;color:#99a2b0"><use href="#i-phone"/></svg>${smartMobile(c,mob)}${copyBtn(mob)}</div>`:''}${em?`<div class="contactline sub"><svg class="icon" style="width:13px;height:13px"><use href="#i-mail"/></svg>${smartEmail(em)}${copyBtn(em)}</div>`:''}</div></td><td>${smartAddress(c)}<div class="sub">${esc(subDisplay)}</div></td><td><div class="cardcount"><span class="mini-card-stack"></span>${cc}${cc>1?pill(t('linked'),'orange'):''}</div></td></tr>`
   }).join('')}</tbody></table></div>`
 };
 
