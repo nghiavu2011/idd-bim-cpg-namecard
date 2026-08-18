@@ -716,16 +716,326 @@ body{font-size:14px;line-height:1.45}
   color: #334155;
   margin: 0 2px;
 }
-@media (max-width:860px){
-  html{font-size:15px}
-  .navbtn{font-size:13px !important}
-  .tablewrap td{font-size:13px !important}
-  .help-bubble-wrap {
-    bottom: 16px;
-    right: 16px;
-  }
+/* ===== 2-Step Intake Wizard Stepper ===== */
+.modal-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 4px 6px;
+}
+.stepper-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: transparent;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.stepper-tab.active {
+  background: #fff;
+  color: #b45309;
+  font-weight: 750;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+.stepper-tab.completed {
+  color: #059669;
+}
+.stepper-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #64748b;
+  display: inline-grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 800;
+}
+.stepper-tab.active .stepper-badge {
+  background: linear-gradient(135deg,var(--brand-red),var(--brand-orange));
+  color: #fff;
+}
+.stepper-tab.completed .stepper-badge {
+  background: #10b981;
+  color: #fff;
+}
+.stepper-line {
+  width: 18px;
+  height: 2px;
+  background: #e2e8f0;
+  border-radius: 2px;
+}
+.wizard-pane {
+  animation: fadeIn .22s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
+/* ===== Mobile Bottom Navigation Bar & Phone Layout ===== */
+.mobile-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  html { font-size: 14.5px; }
+  
+  /* Clean Non-Colliding Sticky Topbar */
+  .topbar {
+    height: 60px !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 50 !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,.04) !important;
+  }
+  .topbar-inner {
+    padding: 0 12px !important;
+    min-height: 60px !important;
+    height: 60px !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+  }
+  .brand {
+    min-width: auto !important;
+    gap: 8px !important;
+    flex: 1 !important;
+  }
+  .brandmark {
+    width: 38px !important;
+    height: 32px !important;
+    padding: 2px !important;
+    border-radius: 9px !important;
+  }
+  .brandtext b {
+    font-size: 13.5px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 130px !important;
+  }
+  .brandtext span {
+    display: none !important;
+  }
+
+  /* Hide clumsy wrapped top nav on phone, active on bottom bar */
+  .topbar .nav {
+    display: none !important;
+  }
+
+  .topactions {
+    margin-left: auto !important;
+    gap: 6px !important;
+    flex-shrink: 0 !important;
+  }
+  #userBadge {
+    display: none !important;
+  }
+  #lockBtn {
+    display: none !important;
+  }
+  #helpTopBtn {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 9px !important;
+  }
+  #addBtn {
+    height: 36px !important;
+    padding: 0 10px !important;
+    font-size: 12px !important;
+    border-radius: 9px !important;
+  }
+  #addBtn span {
+    display: none !important;
+  }
+  #moreBtn {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 9px !important;
+  }
+  .langswitch {
+    padding: 2px !important;
+    border-radius: 999px !important;
+    height: 32px !important;
+  }
+  .langswitch button {
+    height: 28px !important;
+    min-width: 34px !important;
+    font-size: 11px !important;
+    padding: 0 7px !important;
+  }
+
+  /* Main & Pagehead on Mobile */
+  .main {
+    padding: 14px 12px 96px !important; /* reserve room for bottom nav */
+  }
+  .pagehead {
+    display: block !important;
+    padding: 16px 14px !important;
+    border-radius: 16px !important;
+    margin-bottom: 14px !important;
+    min-height: auto !important;
+  }
+  .pagehead h1 {
+    font-size: 20px !important;
+    line-height: 1.25 !important;
+    letter-spacing: -.02em !important;
+  }
+  .pagehead p {
+    font-size: 12.5px !important;
+    margin-top: 4px !important;
+    line-height: 1.4 !important;
+  }
+  .hero-meta-line {
+    display: flex !important;
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+    margin-top: 10px !important;
+  }
+  .hero-meta-line span {
+    font-size: 10px !important;
+    height: 26px !important;
+    padding: 0 8px !important;
+  }
+  .hero-brand-panel {
+    display: none !important;
+  }
+
+  /* Workspace & Toolbar */
+  .workspace {
+    border-radius: 16px !important;
+  }
+  .toolbar {
+    padding: 10px 12px !important;
+    gap: 8px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .searchbox {
+    width: 100% !important;
+    height: 40px !important;
+  }
+  .toolbar .select {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 38px !important;
+  }
+  .view-switch {
+    display: none !important;
+  }
+
+  /* Executive iOS-style Bottom Navigation Bar */
+  .mobile-bottom-nav {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 64px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-top: 1px solid rgba(216, 221, 230, 0.8) !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
+    z-index: 999 !important;
+    padding: 6px 12px 8px !important;
+    align-items: center !important;
+    justify-content: space-around !important;
+  }
+  .mobile-nav-tab {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: #64748b !important;
+    font-size: 11px !important;
+    font-weight: 650 !important;
+    position: relative !important;
+    padding: 4px 0 !important;
+    border-radius: 10px !important;
+    transition: all .2s ease !important;
+  }
+  .mobile-nav-tab .icon {
+    width: 20px !important;
+    height: 20px !important;
+  }
+  .mobile-nav-tab.active {
+    color: #b45309 !important;
+    font-weight: 800 !important;
+  }
+  .mobile-nav-tab.active .icon {
+    color: #f4a61c !important;
+    transform: scale(1.1) !important;
+  }
+  .mobile-nav-count {
+    position: absolute !important;
+    top: 0 !important;
+    right: 18% !important;
+    background: #f4a61c !important;
+    color: #fff !important;
+    font-size: 9.5px !important;
+    font-weight: 800 !important;
+    padding: 1px 5px !important;
+    border-radius: 999px !important;
+    min-width: 16px !important;
+    text-align: center !important;
+    line-height: 1.2 !important;
+  }
+  .mobile-nav-tab:not(.active) .mobile-nav-count {
+    background: #cbd5e1 !important;
+    color: #334155 !important;
+  }
+
+  /* Help Bubble on mobile above bottom nav */
+  .help-bubble-wrap {
+    bottom: 74px !important;
+    right: 14px !important;
+  }
+  .help-bubble-btn {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  /* Ergonomic Bottom Sheet Modals on mobile */
+  .modal {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    max-height: 92vh !important;
+    border-radius: 20px 20px 0 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    left: 0 !important;
+    transform: translateY(100%) !important;
+    transition: transform .25s cubic-bezier(.34,1.56,.64,1) !important;
+  }
+  .modal.show {
+    transform: translateY(0) !important;
+  }
+  .modal-head {
+    padding: 14px 16px !important;
+  }
+  .modal-body {
+    padding: 14px 16px 20px !important;
+  }
+  .formgrid {
+    grid-template-columns: 1fr !important;
+    gap: 9px !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -762,6 +1072,26 @@ body{font-size:14px;line-height:1.45}
     <div class="footerbar"><span id="resultMeta">—</span><span>IDD BIM CPG Namecard_v1.0</span></div>
   </section>
 </main>
+
+<!-- Modern iOS-style Mobile Bottom Navigation Bar -->
+<nav class="mobile-bottom-nav" id="mobileBottomNav">
+  <button class="mobile-nav-tab active" data-view="contacts" type="button">
+    <svg class="icon"><use href="#i-users"/></svg>
+    <span>Liên hệ</span>
+    <span class="mobile-nav-count" id="mContacts">17</span>
+  </button>
+  <button class="mobile-nav-tab" data-view="cards" type="button">
+    <svg class="icon"><use href="#i-card"/></svg>
+    <span>Cards</span>
+    <span class="mobile-nav-count" id="mCards">20</span>
+  </button>
+  <button class="mobile-nav-tab" data-view="companies" type="button">
+    <svg class="icon"><use href="#i-building"/></svg>
+    <span>Công ty</span>
+    <span class="mobile-nav-count" id="mCompanies">0</span>
+  </button>
+</nav>
+
 </div>
 
 <div class="menu" id="moreMenu">
@@ -774,45 +1104,122 @@ body{font-size:14px;line-height:1.45}
 <div class="overlay" id="overlay"></div>
 <aside class="drawer" id="drawer"><div class="drawer-head"><div><div class="eyebrow" id="drawerEyebrow">CONTACT PROFILE</div><h2 id="drawerName"></h2><p id="drawerSub"></p></div><button class="iconbtn" id="drawerClose"><svg class="icon"><use href="#i-x"/></svg></button></div><div class="drawer-body" id="drawerBody"></div></aside>
 
-<div class="modal" id="editModal"><div class="modal-head"><div><h2 id="editTitle">Thêm liên hệ</h2><p>Chỉ nhập trường cốt lõi. Trường chuyên sâu được giữ ở hồ sơ chi tiết.</p></div><button class="iconbtn" data-close-modal><svg class="icon"><use href="#i-x"/></svg></button></div><div class="modal-body"><div class="scanner-panel" id="scannerPanel">
-  <div class="scan-drop" id="scanDrop" tabindex="0">
-    <input id="scanFile" type="file" accept="image/*" hidden />
-    <div class="scan-icon"><svg class="icon"><use href="#i-card"/></svg></div>
-    <div class="scan-copy"><b id="scanTitle">Tải lên · Dán · Thả ảnh namecard</b><span id="scanHint">OCR tự đọc, lọc trùng và điền thông tin vào hồ sơ bên dưới.</span></div>
-    <button class="btn small" type="button" id="scanBrowse">Chọn ảnh</button>
+<!-- 2-Step Intake & Edit Modal -->
+<div class="modal" id="editModal">
+  <div class="modal-head">
+    <div>
+      <!-- Breadcrumb Stepper -->
+      <div class="modal-stepper" id="modalStepper">
+        <div class="stepper-tab active" id="stepTab1" data-step="1">
+          <span class="stepper-badge">1</span>
+          <span class="stepper-name" id="stepTab1Name">Quét ảnh AI</span>
+        </div>
+        <div class="stepper-line"></div>
+        <div class="stepper-tab" id="stepTab2" data-step="2">
+          <span class="stepper-badge">2</span>
+          <span class="stepper-name" id="stepTab2Name">Kiểm tra thông tin</span>
+        </div>
+      </div>
+      <h2 id="editTitle">Thêm liên hệ</h2>
+      <p id="editDesc">Bước 1: Nạp ảnh namecard để AI tự động trích xuất thông tin.</p>
+    </div>
+    <button class="iconbtn" data-close-modal><svg class="icon"><use href="#i-x"/></svg></button>
   </div>
-  <div class="scan-result" id="scanResult" hidden>
-    <div class="scan-preview"><img id="scanPreview" alt="Namecard preview" /></div>
-    <div class="scan-status-wrap">
-      <div class="scan-status-line"><b id="scanStatus">Đang chuẩn bị...</b><span id="scanPercent"></span></div>
-      <div class="scan-progress"><i id="scanProgress"></i></div>
-      <div class="scan-duplicate" id="scanDuplicate" hidden></div>
-      <div class="scan-actions"><button class="btn small" type="button" id="scanAgain">Đổi ảnh</button><button class="btn small" type="button" id="scanClear">Xóa ảnh</button></div>
+
+  <div class="modal-body">
+    <!-- WIZARD STEP 1: SCAN & OCR INTAKE -->
+    <div id="wizardStep1" class="wizard-pane">
+      <div class="scanner-panel" id="scannerPanel">
+        <div class="scan-drop" id="scanDrop" tabindex="0">
+          <input id="scanFile" type="file" accept="image/*" hidden />
+          <div class="scan-icon"><svg class="icon"><use href="#i-card"/></svg></div>
+          <div class="scan-copy">
+            <b id="scanTitle">Tải lên · Dán · Thả ảnh namecard</b>
+            <span id="scanHint">AI đọc siêu tốc, tự động lọc trùng và lưu vào Sheet + Drive.</span>
+          </div>
+          <button class="btn small" type="button" id="scanBrowse">Chọn ảnh</button>
+        </div>
+        <div class="scan-result" id="scanResult" hidden>
+          <div class="scan-preview"><img id="scanPreview" alt="Namecard preview" /></div>
+          <div class="scan-status-wrap">
+            <div class="scan-status-line"><b id="scanStatus">Đang chuẩn bị...</b><span id="scanPercent"></span></div>
+            <div class="scan-progress"><i id="scanProgress"></i></div>
+            <div class="scan-duplicate" id="scanDuplicate" hidden></div>
+            <div class="scan-actions">
+              <button class="btn small" type="button" id="scanAgain">Đổi ảnh</button>
+              <button class="btn small" type="button" id="scanClear">Xóa ảnh</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="multiCardBar" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+          <div style="font-weight:750;color:#0f172a;font-size:13px;display:flex;align-items:center;gap:6px;">
+            <span id="multiCardTitle">📸 Đã nhận diện 0 namecard</span>
+          </div>
+          <button class="btn primary small" type="button" id="batchSaveAllBtn" style="background:#059669;border-color:#059669;font-size:12px;padding:4px 12px;border-radius:8px;">
+            <svg class="icon" style="width:13px;height:13px;"><use href="#i-check"/></svg>
+            <span id="batchSaveAllBtnText">Lưu tất cả liên hệ vào Sheet</span>
+          </button>
+        </div>
+        <div class="card-pills-strip" id="multiCardStrip" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin;"></div>
+      </div>
+
+      <div class="wizard-step1-actions" style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid #f1f5f9;">
+        <button class="btn ghost" type="button" id="manualEntryBtn" style="color:#64748b;font-size:13px;">
+          ✍️ Nhập thủ công không dùng ảnh
+        </button>
+        <button class="btn primary" type="button" id="goToStep2Btn" style="min-width:180px;">
+          <span id="goToStep2BtnText">Tiếp tục kiểm tra</span>
+          <svg class="icon" style="width:14px;height:14px;"><use href="#i-arrow-right"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- WIZARD STEP 2: REVIEW & EDIT FORM FIELDS -->
+    <div id="wizardStep2" class="wizard-pane" style="display:none;">
+      <div id="step2CardRef" style="display:none;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <img id="step2CardThumb" src="" alt="Card" style="width:54px;height:35px;object-fit:cover;border-radius:6px;border:1px solid #cbd5e1;flex-shrink:0;" />
+          <div style="min-width:0;">
+            <b id="step2CardTitle" style="font-size:13px;display:block;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Ảnh namecard đối chiếu</b>
+            <span id="step2CardSub" style="font-size:11px;color:#64748b;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Đối chiếu ảnh gốc với các trường thông tin</span>
+          </div>
+        </div>
+        <button class="btn small" type="button" id="step2ZoomCardBtn" style="padding:0 9px;font-size:11px;gap:4px;flex-shrink:0;">
+          <svg class="icon" style="width:12px;height:12px;"><use href="#i-search"/></svg>
+          <span id="step2ZoomBtnText">Xem ảnh lớn</span>
+        </button>
+      </div>
+
+      <div class="formgrid">
+        <div class="field"><label>Họ tên</label><input id="fName" /></div><div class="field"><label>Công ty / tổ chức</label><input id="fCompany" /></div>
+        <div class="field"><label>Chức danh</label><input id="fTitle" /></div><div class="field"><label>Cấp bậc</label><input id="fLevel" /></div>
+        <div class="field"><label>Mobile</label><input id="fMobile" /></div><div class="field"><label>Email</label><input id="fEmail" /></div>
+        <div class="field"><label>Website</label><input id="fWebsite" placeholder="www.company.com" /></div><div class="field"><label>Địa chỉ</label><input id="fAddress" /></div>
+        <div class="field"><label>Ngành</label><input id="fIndustry" /></div><div class="field"><label>Vai trò CRM</label><input id="fRole" /></div>
+        <div class="field"><label>Quốc gia</label><input id="fCountry" /></div><div class="field"><label>Thành phố</label><input id="fCity" /></div>
+        <div class="field"><label>Độ tin cậy</label><select id="fConfidence"><option>High</option><option>Medium</option><option>Low</option></select></div><div class="field"><label>Nguồn card</label><input id="fSource" placeholder="VD: IMG3-R1C1" /></div>
+        <div class="field full"><label>Ghi chú kiểm tra</label><textarea id="fNote"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-foot">
+    <div id="modalFootLeft">
+      <button class="btn danger" id="deleteBtn" style="display:none;">Xóa liên hệ</button>
+      <button class="btn" type="button" id="step2BackBtn" style="display:none;">
+        <svg class="icon" style="width:13px;height:13px;"><use href="#i-arrow-left"/></svg>
+        <span id="step2BackBtnText">Quay lại tải ảnh</span>
+      </button>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" data-close-modal id="cancelBtn">Hủy</button>
+      <button class="btn primary" id="saveBtn">Lưu liên hệ</button>
     </div>
   </div>
 </div>
-<div id="multiCardBar" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:16px;">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
-    <div style="font-weight:750;color:#0f172a;font-size:13px;display:flex;align-items:center;gap:6px;">
-      <span id="multiCardTitle">📸 Đã nhận diện 0 namecard</span>
-    </div>
-    <button class="btn primary small" type="button" id="batchSaveAllBtn" style="background:#059669;border-color:#059669;font-size:12px;padding:4px 12px;border-radius:8px;">
-      <svg class="icon" style="width:13px;height:13px;"><use href="#i-check"/></svg>
-      <span id="batchSaveAllBtnText">Lưu tất cả liên hệ vào Sheet</span>
-    </button>
-  </div>
-  <div class="card-pills-strip" id="multiCardStrip" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin;"></div>
-</div>
-<div class="formgrid">
-  <div class="field"><label>Họ tên</label><input id="fName" /></div><div class="field"><label>Công ty / tổ chức</label><input id="fCompany" /></div>
-  <div class="field"><label>Chức danh</label><input id="fTitle" /></div><div class="field"><label>Cấp bậc</label><input id="fLevel" /></div>
-  <div class="field"><label>Mobile</label><input id="fMobile" /></div><div class="field"><label>Email</label><input id="fEmail" /></div>
-  <div class="field"><label>Website</label><input id="fWebsite" placeholder="www.company.com" /></div><div class="field"><label>Địa chỉ</label><input id="fAddress" /></div>
-  <div class="field"><label>Ngành</label><input id="fIndustry" /></div><div class="field"><label>Vai trò CRM</label><input id="fRole" /></div>
-  <div class="field"><label>Quốc gia</label><input id="fCountry" /></div><div class="field"><label>Thành phố</label><input id="fCity" /></div>
-  <div class="field"><label>Độ tin cậy</label><select id="fConfidence"><option>High</option><option>Medium</option><option>Low</option></select></div><div class="field"><label>Nguồn card</label><input id="fSource" placeholder="VD: IMG3-R1C1" /></div>
-  <div class="field full"><label>Ghi chú kiểm tra</label><textarea id="fNote"></textarea></div>
-</div></div><div class="modal-foot"><button class="btn danger" id="deleteBtn">Xóa liên hệ</button><div style="display:flex;gap:8px"><button class="btn" data-close-modal>Hủy</button><button class="btn primary" id="saveBtn">Lưu liên hệ</button></div></div></div>
 
 <div class="modal" id="sourceModal"><div class="modal-head"><div><h2 id="sourceTitle">Ảnh nguồn</h2><p>Ảnh chụp batch gốc để đối chiếu.</p></div><button class="iconbtn" data-close-source><svg class="icon"><use href="#i-x"/></svg></button></div><div class="modal-body"><img id="sourceImage" class="source-modal-img" alt="Ảnh nguồn" /></div></div>
 
@@ -888,6 +1295,8 @@ body{font-size:14px;line-height:1.45}
 <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol>
 <symbol id="i-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></symbol>
 <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.7-3.4L23 10M1 14l4.8 4.4A9 9 0 0 0 20.5 15"/></symbol>
+<symbol id="i-arrow-left" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></symbol>
+<symbol id="i-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
 </defs></svg>
 
 <script>
@@ -1191,7 +1600,13 @@ const I18N = {
     toastCopied:'Đã sao chép', toastSaved:'Đã lưu liên hệ', toastDeleted:'Đã xóa contact', toastRestored:'Đã khôi phục dữ liệu gốc', needName:'Cần nhập họ tên',
     confirmDelete:'Xóa contact {name}? Card vật lý gốc vẫn được giữ trong dataset.',
     confirmReset:'Khôi phục 17 contact gốc? Các chỉnh sửa local hiện tại sẽ bị thay thế.',
-    savedAt:'Đã lưu local · {time}'
+    savedAt:'Đã lưu local · {time}',
+    step1Name:'Quét ảnh AI', step2Name:'Kiểm tra thông tin',
+    step1Desc:'Bước 1: Nạp ảnh namecard để AI tự động trích xuất thông tin.',
+    step2Desc:'Bước 2: Đối chiếu thông tin đã bóc tách và lưu vào danh bạ Master.',
+    goToStep2:'Tiếp tục kiểm tra', manualEntry:'✍️ Nhập thủ công không dùng ảnh',
+    backToStep1:'Quay lại tải ảnh', step2CardTitle:'Ảnh namecard đối chiếu',
+    step2CardSub:'Đối chiếu ảnh gốc với các trường thông tin bên dưới', zoomCard:'Xem ảnh lớn'
   },
   en: {
     brandTitle:'IDD BIM CPG Namecard',
@@ -1233,7 +1648,13 @@ const I18N = {
     toastCopied:'Copied', toastSaved:'Contact saved', toastDeleted:'Contact deleted', toastRestored:'Original data restored', needName:'Please enter a name',
     confirmDelete:'Delete contact {name}? The original physical cards will remain in the dataset.',
     confirmReset:'Restore the original 17 contacts? Current local edits will be replaced.',
-    savedAt:'Saved locally · {time}'
+    savedAt:'Saved locally · {time}',
+    step1Name:'AI Scan', step2Name:'Review Details',
+    step1Desc:'Step 1: Upload card photo for automated AI extraction.',
+    step2Desc:'Step 2: Review extracted fields and save to master directory.',
+    goToStep2:'Review Details', manualEntry:'✍️ Manual entry without photo',
+    backToStep1:'Back to Upload', step2CardTitle:'Reference Card',
+    step2CardSub:'Cross-check original image with fields below', zoomCard:'View Full Image'
   }
 };
 function t(key, vars={}){
@@ -1266,6 +1687,12 @@ function applyI18n(){
   if(navLabels[1]) navLabels[1].textContent = t('navCards');
   if(navLabels[2]) navLabels[2].textContent = t('navCompanies');
   if(navLabels[3]) navLabels[3].textContent = t('navReview');
+  
+  const mTabs = $$('.mobile-nav-tab span:not(.mobile-nav-count)');
+  if(mTabs[0]) mTabs[0].textContent = t('navContacts');
+  if(mTabs[1]) mTabs[1].textContent = t('navCards');
+  if(mTabs[2]) mTabs[2].textContent = t('navCompanies');
+
   document.querySelector('.brandtext b').textContent = t('brandTitle');
   document.querySelector('.brandtext span').textContent = t('brandTag');
   document.querySelector('#addBtn span').textContent = t('addContact');
@@ -1298,12 +1725,23 @@ function applyI18n(){
   $('#backupBtn').innerHTML = `<svg class="icon"><use href="#i-save"></use></svg>${t('backupJSON')}`;
   $('#resetBtn').innerHTML = `<svg class="icon"><use href="#i-refresh"></use></svg>${t('resetData')}`;
   $('#drawerEyebrow').textContent = t('drawerEyebrow');
+  
+  if($('#stepTab1Name')) $('#stepTab1Name').textContent = t('step1Name');
+  if($('#stepTab2Name')) $('#stepTab2Name').textContent = t('step2Name');
+  if($('#goToStep2BtnText')) $('#goToStep2BtnText').textContent = t('goToStep2');
+  if($('#manualEntryBtn')) $('#manualEntryBtn').textContent = t('manualEntry');
+  if($('#step2BackBtnText')) $('#step2BackBtnText').textContent = t('backToStep1');
+  if($('#step2CardTitle') && !pendingScanImage) $('#step2CardTitle').textContent = t('step2CardTitle');
+  if($('#step2CardSub')) $('#step2CardSub').textContent = t('step2CardSub');
+  if($('#step2ZoomBtnText')) $('#step2ZoomBtnText').textContent = t('zoomCard');
+
   const editHead = document.querySelector('#editModal .modal-head h2'); if(editHead && !editingId) editHead.textContent=t('editAdd');
-  const editDesc = document.querySelector('#editModal .modal-head p'); if(editDesc) editDesc.textContent=t('editDesc');
+  const editDesc = document.querySelector('#editModal .modal-head p'); if(editDesc && !editingId) editDesc.textContent=t('step1Desc');
   const labels = $$('#editModal .field label');
   ['fieldName','fieldCompany','fieldTitle','fieldLevel','fieldMobile','fieldEmail','fieldWebsite','fieldAddress','fieldIndustry','fieldRole','fieldCountry','fieldCity','fieldConfidence','fieldSource','fieldNote'].forEach((k,i)=>{ if(labels[i]) labels[i].textContent=t(k); });
   $('#deleteBtn').textContent=t('deleteContact');
-  const modalBtns=$$('#editModal .modal-foot .btn'); if(modalBtns[1]) modalBtns[1].textContent=t('cancel'); if(modalBtns[2]) modalBtns[2].textContent=t('save');
+  if($('#cancelBtn')) $('#cancelBtn').textContent=t('cancel');
+  if($('#saveBtn')) $('#saveBtn').textContent=t('save');
   const sourceHead = document.querySelector('#sourceModal .modal-head h2'); if(sourceHead && sourceHead.textContent==='Ảnh nguồn') sourceHead.textContent=t('sourceTitle');
   const sourceDesc = document.querySelector('#sourceModal .modal-head p'); if(sourceDesc) sourceDesc.textContent=t('sourceDesc');
   const mobileTitle = document.querySelector('#mobileModal .modal-head h2'); if(mobileTitle) mobileTitle.textContent=t('mobileTitle');
@@ -1710,31 +2148,153 @@ async function sendToGoogleAppsScript(cardObj,imgBase64,sourceName){
   }catch(e){console.warn('Background sync error:',e)}
 }
 
-// Upgrade add/edit behavior: scanner only appears for new intake.
-const _openEditV3=openEdit;
-openEdit=function(id=null){pendingDuplicateId=null;resetScanUI();_openEditV3(id);if($('#scannerPanel'))$('#scannerPanel').style.display=id?'none':'block';if(!id){$('#editTitle').textContent=t('editAdd');$('#editModal .modal-head p').textContent=t('editDesc');}}
-closeEdit=(function(orig){return function(){orig();resetScanUI();}})(closeEdit);
+/* ===== 2-Step Wizard Intake Controller ===== */
+let currentWizardStep = 1;
+
+function setWizardStep(step) {
+  currentWizardStep = step;
+  const tab1 = $('#stepTab1');
+  const tab2 = $('#stepTab2');
+  const pane1 = $('#wizardStep1');
+  const pane2 = $('#wizardStep2');
+  const backBtn = $('#step2BackBtn');
+  const delBtn = $('#deleteBtn');
+  const saveBtn = $('#saveBtn');
+  const editTitle = $('#editTitle');
+  const editDesc = $('#editDesc');
+  const cardRef = $('#step2CardRef');
+  const cardThumb = $('#step2CardThumb');
+  const cardTitle = $('#step2CardTitle');
+
+  if (step === 1) {
+    if (pane1) pane1.style.display = 'block';
+    if (pane2) pane2.style.display = 'none';
+    if (tab1) { tab1.classList.add('active'); tab1.classList.remove('completed'); }
+    if (tab2) { tab2.classList.remove('active', 'completed'); }
+    if (backBtn) backBtn.style.display = 'none';
+    if (delBtn) delBtn.style.display = 'none';
+    if (saveBtn) saveBtn.style.display = 'none';
+    if (editTitle) editTitle.textContent = currentLang === 'en' ? 'Upload & Scan Namecard' : 'Quét & Tải ảnh namecard';
+    if (editDesc) editDesc.textContent = t('step1Desc');
+  } else {
+    if (pane1) pane1.style.display = 'none';
+    if (pane2) pane2.style.display = 'block';
+    if (tab1) { tab1.classList.remove('active'); tab1.classList.add('completed'); }
+    if (tab2) { tab2.classList.add('active'); }
+    if (backBtn && !editingId) backBtn.style.display = 'inline-flex';
+    if (delBtn) delBtn.style.display = (editingId && currentUserSession && currentUserSession.is_admin) ? 'inline-flex' : 'none';
+    if (saveBtn) saveBtn.style.display = 'inline-flex';
+    if (editTitle) editTitle.textContent = editingId ? (currentLang === 'en' ? 'Edit Contact Profile' : 'Chỉnh sửa hồ sơ liên hệ') : (currentLang === 'en' ? 'Review & Verify Details' : 'Kiểm tra & Hiệu chỉnh thông tin');
+    if (editDesc) editDesc.textContent = t('step2Desc');
+
+    if (pendingScanImage && !editingId) {
+      if (cardRef) cardRef.style.display = 'flex';
+      if (cardThumb) cardThumb.src = pendingScanImage;
+      const curName = $('#fName')?.value || 'Namecard';
+      if (cardTitle) cardTitle.textContent = `${curName} · ${currentLang === 'en' ? 'Card Photo' : 'Ảnh namecard gốc'}`;
+    } else {
+      if (cardRef) cardRef.style.display = 'none';
+    }
+  }
+}
+
+let wizardEventsInitialized = false;
+function initWizardEvents() {
+  if (wizardEventsInitialized) return;
+  wizardEventsInitialized = true;
+
+  $('#goToStep2Btn')?.addEventListener('click', () => {
+    setWizardStep(2);
+  });
+
+  $('#manualEntryBtn')?.addEventListener('click', () => {
+    setWizardStep(2);
+  });
+
+  $('#step2BackBtn')?.addEventListener('click', () => {
+    setWizardStep(1);
+  });
+
+  $('#stepTab1')?.addEventListener('click', () => {
+    if (!editingId) setWizardStep(1);
+  });
+
+  $('#stepTab2')?.addEventListener('click', () => {
+    setWizardStep(2);
+  });
+
+  $('#step2ZoomCardBtn')?.addEventListener('click', () => {
+    if (pendingScanImage) {
+      $('#sourceTitle').textContent = t('sourceTitle');
+      $('#sourceImage').src = pendingScanImage;
+      $('#sourceModal').classList.add('show');
+      $('#overlay').classList.add('show');
+    }
+  });
+
+  // Mobile Bottom Navigation Tabs synchronization
+  $$('.mobile-nav-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      currentView = tab.dataset.view;
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+}
+
+// Upgrade add/edit behavior with 2-step wizard
+const _openEditV3 = openEdit;
+openEdit = function(id = null) {
+  pendingDuplicateId = null;
+  resetScanUI();
+  _openEditV3(id);
+  initWizardEvents();
+  const stepper = $('#modalStepper');
+  if (id) {
+    if (stepper) stepper.style.display = 'none';
+    setWizardStep(2);
+  } else {
+    if (stepper) stepper.style.display = 'inline-flex';
+    setWizardStep(1);
+  }
+};
+closeEdit = (function(orig) {
+  return function() {
+    orig();
+    resetScanUI();
+    setWizardStep(1);
+  };
+})(closeEdit);
+
+const _origUpdateStats = updateStats;
+updateStats = function() {
+  _origUpdateStats();
+  if ($('#mContacts')) $('#mContacts').textContent = contacts.length;
+  if ($('#mCards')) $('#mCards').textContent = PHYSICAL_CARDS.length;
+  if ($('#mCompanies')) $('#mCompanies').textContent = companies().length;
+  $$('.mobile-nav-tab').forEach(b => b.classList.toggle('active', b.dataset.view === currentView));
+};
 
 // Final save behavior supports duplicate update + physical card linkage + Google Cloud sync.
-saveEdit=function(){
-  if(!$('#fName').value.trim())return toast(t('needName'));
-  const targetId=editingId||pendingDuplicateId;
-  let c=targetId?contacts.find(x=>val(x,'Contact_ID')===targetId):{Contact_ID:nextId(),'Tên chuẩn hóa':'','Xưng hô':'','Job Title (EN)':'','Chức năng / Phòng ban':'','Tên ngắn':'','Ngành cấp 2':'','Địa chỉ':'','Điện thoại bàn':'','Fax':'','Email phụ':'','Website':'','Ngôn ngữ':'','Số card trùng':0};
-  if(!c)return;
-  Object.entries(fields).forEach(([el,k])=>c[k]=$('#'+el).value.trim());
-  if(!targetId)contacts.push(c);
-  const curImg=pendingScanImage;
-  const curSrc=pendingScanSource;
+saveEdit = function() {
+  if (!$('#fName').value.trim()) return toast(t('needName'));
+  const targetId = editingId || pendingDuplicateId;
+  let c = targetId ? contacts.find(x => val(x, 'Contact_ID') === targetId) : { Contact_ID: nextId(), 'Tên chuẩn hóa': '', 'Xưng hô': '', 'Job Title (EN)': '', 'Chức năng / Phòng ban': '', 'Tên ngắn': '', 'Ngành cấp 2': '', 'Địa chỉ': '', 'Điện thoại bàn': '', 'Fax': '', 'Email phụ': '', 'Website': '', 'Ngôn ngữ': '', 'Số card trùng': 0 };
+  if (!c) return;
+  Object.entries(fields).forEach(([el, k]) => c[k] = $('#' + el).value.trim());
+  if (!targetId) contacts.push(c);
+  const curImg = pendingScanImage;
+  const curSrc = pendingScanSource;
   attachPendingCard(c);
   persist();
   closeEdit();
   render();
   toast(t('toastSaved'));
-  if(curImg){
-    sendToGoogleAppsScript(c,curImg,curSrc);
+  if (curImg) {
+    sendToGoogleAppsScript(c, curImg, curSrc);
   }
 };
-$('#saveBtn').onclick=saveEdit;
+$('#saveBtn').onclick = saveEdit;
 
 /* ===== CPG ENTERPRISE SECURITY LAYER ===== */
 const CPG_SALT = 'CPG_VN_IDD_BIM_CORP_SECURE_SALT_2026_@!';
@@ -2347,6 +2907,7 @@ loadScannedCards();
 
 initBranding();
 initAuth();
+initWizardEvents();
 applyI18n();
 
 render();
