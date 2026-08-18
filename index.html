@@ -578,6 +578,32 @@ body{font-size:14px;line-height:1.45}
 .drawer h2,.modal h2{font-size:22px !important}
 .drawer .meta-grid .label,.drawer .meta-grid .value,.field input,.field select,.field textarea{font-size:14px !important}
 .copybtn,.smart-link,.smart-field,.company-search{font-size:inherit !important}
+.card-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 650;
+  color: #334155;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s ease;
+}
+.card-pill-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+.card-pill-btn.active {
+  background: #f4a61c;
+  color: #ffffff;
+  border-color: #f4a61c;
+  font-weight: 750;
+  box-shadow: 0 2px 8px rgba(244,166,28,.28);
+}
 #pinInput:focus {
   border-color: #f4a61c !important;
   box-shadow: 0 0 0 4px rgba(244,166,28,.15) !important;
@@ -658,7 +684,20 @@ body{font-size:14px;line-height:1.45}
       <div class="scan-actions"><button class="btn small" type="button" id="scanAgain">Đổi ảnh</button><button class="btn small" type="button" id="scanClear">Xóa ảnh</button></div>
     </div>
   </div>
-</div><div class="formgrid">
+</div>
+<div id="multiCardBar" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:16px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+    <div style="font-weight:750;color:#0f172a;font-size:13px;display:flex;align-items:center;gap:6px;">
+      <span id="multiCardTitle">📸 Đã nhận diện 0 namecard</span>
+    </div>
+    <button class="btn primary small" type="button" id="batchSaveAllBtn" style="background:#059669;border-color:#059669;font-size:12px;padding:4px 12px;border-radius:8px;">
+      <svg class="icon" style="width:13px;height:13px;"><use href="#i-check"/></svg>
+      <span id="batchSaveAllBtnText">Lưu tất cả liên hệ vào Sheet</span>
+    </button>
+  </div>
+  <div class="card-pills-strip" id="multiCardStrip" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin;"></div>
+</div>
+<div class="formgrid">
   <div class="field"><label>Họ tên</label><input id="fName" /></div><div class="field"><label>Công ty / tổ chức</label><input id="fCompany" /></div>
   <div class="field"><label>Chức danh</label><input id="fTitle" /></div><div class="field"><label>Cấp bậc</label><input id="fLevel" /></div>
   <div class="field"><label>Mobile</label><input id="fMobile" /></div><div class="field"><label>Email</label><input id="fEmail" /></div>
@@ -1173,14 +1212,19 @@ function setScanUI(status,percent=0,kind=''){
   box.hidden=false; box.classList.toggle('done',kind==='done'); box.classList.toggle('error',kind==='error');
   $('#scanStatus').textContent=status; $('#scanPercent').textContent=percent?Math.round(percent)+'%':''; $('#scanProgress').style.width=Math.max(0,Math.min(100,percent))+'%';
 }
+let pendingExtractedCards=[];
+let currentMultiCardIndex=0;
+
 function resetScanUI(clearImage=true){
-  pendingDuplicateId=null; pendingScanSource=''; pendingExtractedCard=null; scanBusy=false;
+  pendingDuplicateId=null; pendingScanSource=''; pendingExtractedCard=null; pendingExtractedCards=[]; currentMultiCardIndex=0; scanBusy=false;
   if(clearImage)pendingScanImage=null;
   if($('#scanResult')){$('#scanResult').hidden=true;$('#scanResult').classList.remove('done','error');}
   if($('#scanDuplicate')){$('#scanDuplicate').hidden=true;$('#scanDuplicate').textContent='';}
   if($('#scanFile'))$('#scanFile').value='';
+  if($('#multiCardBar'))$('#multiCardBar').style.display='none';
+  if($('#multiCardStrip'))$('#multiCardStrip').innerHTML='';
 }
-async function compressCardImage(file,maxW=1400,maxH=1000,quality=.84){
+async function compressCardImage(file,maxW=2560,maxH=2560,quality=.92){
   const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)});
   const img=await new Promise((res,rej)=>{const x=new Image();x.onload=()=>res(x);x.onerror=rej;x.src=data});
   let scale=Math.min(1,maxW/img.width,maxH/img.height),w=Math.max(1,Math.round(img.width*scale)),h=Math.max(1,Math.round(img.height*scale));
@@ -1189,6 +1233,7 @@ async function compressCardImage(file,maxW=1400,maxH=1000,quality=.84){
 }
 function phoneDigits(s){return String(s||'').replace(/\D/g,'').replace(/^00/,'').replace(/^84/,'0')}
 function findDuplicateFromScan(p){
+  if(!p) return null;
   const em=norm(p.primary_email||p.email), ph=phoneDigits(p.mobile||p.phone), nm=norm(p.full_name||p.name), co=norm(p.company||p.short_company);
   return contacts.find(c=>{
     if(em&&norm(val(c,'Email chính'))===em)return true;
@@ -1197,6 +1242,7 @@ function findDuplicateFromScan(p){
   })||null;
 }
 function fillFromScan(p,dup){
+  if(!p) return;
   const existing=dup||{};
   const put=(id,v,k='')=>{const el=$(id);if(!el)return;let old=k?val(existing,k):'';el.value=v||old||''};
   put('#fName',p.full_name||p.name,'Họ tên');
@@ -1218,9 +1264,14 @@ function fillFromScan(p,dup){
 
 async function callGeminiVision(base64Image){
   const cleanBase64=base64Image.replace(/^data:image\/[a-z]+;base64,/,'');
-  const prompt=`Trích xuất toàn bộ thông tin từ ảnh Namecard / Danh thiếp này thành 1 JSON duy nhất theo đúng schema:
+  const prompt=`Bạn là hệ thống trích xuất OCR Namecard thông minh của CPG.
+Trong ảnh có thể chứa 1 chiếc namecard HOẶC NHIỀU chiếc namecard được đặt trên bàn/mặt phẳng (kể cả bị xoay dọc, xoay ngang hay nghiêng).
+
+Nhiệm vụ:
+1. Hãy tìm và nhận diện TẤT CẢ các danh thiếp / namecard riêng biệt xuất hiện trong ảnh.
+2. Với MỖI namecard, trích xuất chính xác thông tin thành 1 object:
 {
-  "full_name": "Họ và tên",
+  "full_name": "Họ và tên người trên card",
   "normalized_name": "Tên không dấu",
   "salutation": "Ông / Bà / Anh / Chị / Mr / Ms",
   "title_vi": "Chức danh tiếng Việt",
@@ -1228,14 +1279,14 @@ async function callGeminiVision(base64Image){
   "seniority": "C-Level / Director / Manager / Specialist / Staff",
   "department": "Phòng ban",
   "company": "Tên công ty đầy đủ",
-  "short_company": "Tên viết tắt của công ty",
-  "industry_1": "Ngành cấp 1 (ví dụ: Architecture / Engineering / Real Estate / Construction / Technology / Services)",
+  "short_company": "Tên viết tắt của công ty (ví dụ: CPG, Deborah Home, Kretop, BASF, Ánh Ngọc Thạch...)",
+  "industry_1": "Ngành cấp 1 (Architecture / Construction / Chemical / Flooring / Technology...)",
   "industry_2": "Ngành cấp 2",
   "country": "Quốc gia",
   "city": "Thành phố",
   "address": "Địa chỉ",
-  "mobile": "Số di động",
-  "phone": "Số điện thoại bàn",
+  "mobile": "Số di động (Mobile)",
+  "phone": "Số điện thoại bàn (Tel / Phone / Landline)",
   "fax": "Fax",
   "primary_email": "Email chính",
   "secondary_email": "Email phụ",
@@ -1245,9 +1296,11 @@ async function callGeminiVision(base64Image){
   "confidence": "High",
   "review_note": ""
 }
-LƯU Ý QUAN TRỌNG:
-1. Trường review_note: Chỉ ghi chú nếu có chữ bị mờ hoặc không đọc rõ. Nếu card rõ ràng thì BẮT BUỘC để trống chuỗi rỗng "" (TUYỆT ĐỐI KHÔNG mô tả hình dáng bên ngoài, giá đỡ, chồng thẻ hay bố cục ảnh).
-2. Chỉ trả về JSON thuần túy, không có code block markdown.`;
+
+Trả về định dạng JSON:
+{
+  "cards": [ ... ]
+}`;
 
   const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${GEMINI_API_KEY}`;
   const response=await fetch(url,{
@@ -1266,39 +1319,171 @@ LƯU Ý QUAN TRỌNG:
   if(!response.ok) throw new Error(`Gemini Error ${response.status}`);
   const data=await response.json();
   const rawText=data.candidates?.[0]?.content?.parts?.[0]?.text||'{}';
-  return JSON.parse(rawText);
+  const parsed=JSON.parse(rawText);
+  let list=[];
+  if(Array.isArray(parsed)){
+    list=parsed;
+  }else if(parsed&&Array.isArray(parsed.cards)){
+    list=parsed.cards;
+  }else if(parsed&&typeof parsed==='object'){
+    list=[parsed];
+  }
+  return list.filter(c=>c&&(c.full_name||c.name||c.company));
 }
 
-async function processNamecardFile(file){
-  if(scanBusy)return;if(!file||!file.type.startsWith('image/')){toast(scanT('invalid'));return}
-  scanBusy=true;pendingDuplicateId=null;setScanUI(scanT('preparing'),15);
-  try{
-    pendingScanImage=await compressCardImage(file);
-    pendingScanSource='UPLOAD-'+new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14);
-    $('#scanPreview').src=pendingScanImage;
-    setScanUI(scanT('reading'),45);
-    
-    let parsed;
-    try{
-      parsed=await callGeminiVision(pendingScanImage);
-    }catch(err){
-      console.warn('Gemini vision error, falling back to local text parser',err);
-      parsed={full_name:file.name.replace(/\.[^.]+$/,''),company:'IDD BIM CPG',confidence:'Medium'};
-    }
-    
-    setScanUI(scanT('extracting'),85);
-    pendingExtractedCard=parsed;
-    const dup=findDuplicateFromScan(parsed);
-    pendingDuplicateId=dup?dup.Contact_ID:null;
-    fillFromScan(parsed,dup);
-    
-    const d=$('#scanDuplicate');d.hidden=false;
+function selectMultiCard(idx){
+  if(!pendingExtractedCards||!pendingExtractedCards[idx])return;
+  currentMultiCardIndex=idx;
+  const p=pendingExtractedCards[idx];
+  pendingExtractedCard=p;
+  const dup=findDuplicateFromScan(p);
+  pendingDuplicateId=dup?dup.Contact_ID:null;
+  fillFromScan(p,dup);
+  
+  const d=$('#scanDuplicate');
+  if(d){
+    d.hidden=false;
     if(dup){
       d.textContent=scanFmt(scanT('duplicate'),{name:val(dup,'Họ tên'),company:val(dup,'Tên ngắn')||val(dup,'Công ty / Tổ chức')});
     }else{
       d.textContent=scanT('newContact');
     }
-    setScanUI(scanT('done'),100,'done');
+  }
+  
+  $$('.card-pill-btn').forEach((btn,i)=>btn.classList.toggle('active',i===idx));
+}
+
+function renderMultiCardBar(){
+  const bar=$('#multiCardBar');
+  const strip=$('#multiCardStrip');
+  const title=$('#multiCardTitle');
+  const btnText=$('#batchSaveAllBtnText');
+  if(!bar||!strip)return;
+  
+  if(!pendingExtractedCards||pendingExtractedCards.length<=1){
+    bar.style.display='none';
+    return;
+  }
+  
+  bar.style.display='block';
+  const count=pendingExtractedCards.length;
+  if(title) title.textContent=currentLang==='en'?`📸 Detected ${count} namecards in image!`:`📸 Đã nhận diện ${count} namecard trong ảnh!`;
+  if(btnText) btnText.textContent=currentLang==='en'?`Save all ${count} contacts to Sheet`:`Lưu tất cả ${count} liên hệ vào Sheet`;
+  
+  strip.innerHTML=pendingExtractedCards.map((c,i)=>{
+    const name=c.full_name||c.name||`Card ${i+1}`;
+    const comp=c.short_company||c.company||'—';
+    return `<button type="button" class="card-pill-btn ${i===currentMultiCardIndex?'active':''}" data-card-idx="${i}"><span>📇 ${esc(name)}</span><small style="opacity:.75;">(${esc(comp)})</small></button>`;
+  }).join('');
+}
+
+stripEventAttached=false;
+function initMultiCardEvents(){
+  if(stripEventAttached)return;
+  stripEventAttached=true;
+  $('#multiCardStrip')?.addEventListener('click',e=>{
+    const btn=e.target.closest('[data-card-idx]');
+    if(!btn)return;
+    const idx=parseInt(btn.dataset.cardIdx);
+    selectMultiCard(idx);
+  });
+  $('#batchSaveAllBtn')?.addEventListener('click',batchSaveAllCards);
+}
+
+async function batchSaveAllCards(){
+  if(!pendingExtractedCards||!pendingExtractedCards.length)return;
+  const total=pendingExtractedCards.length;
+  let savedCount=0;
+  
+  toast(currentLang==='en'?`Saving ${total} contacts to Google Sheet...`:`Đang lưu ${total} liên hệ vào Google Sheet...`);
+  
+  for(let i=0;i<pendingExtractedCards.length;i++){
+    const p=pendingExtractedCards[i];
+    const name=p.full_name||p.name||`Contact ${i+1}`;
+    const dup=findDuplicateFromScan(p);
+    let c=dup||{
+      Contact_ID:nextId(),
+      'Họ tên':name,
+      'Tên chuẩn hóa':p.normalized_name||'',
+      'Xưng hô':p.salutation||'',
+      'Chức danh (VI)':p.title_vi||p.title||'',
+      'Job Title (EN)':p.title_en||'',
+      'Cấp bậc':p.seniority||p.level||'',
+      'Chức năng / Phòng ban':p.department||'',
+      'Công ty / Tổ chức':p.company||'',
+      'Tên ngắn':p.short_company||'',
+      'Ngành cấp 1':p.industry_1||'',
+      'Ngành cấp 2':p.industry_2||'',
+      'Quốc gia':p.country||'Việt Nam',
+      'Thành phố':p.city||'',
+      'Địa chỉ':p.address||'',
+      'Mobile':p.mobile||'',
+      'Điện thoại bàn':p.phone||'',
+      'Fax':p.fax||'',
+      'Email chính':p.primary_email||p.email||'',
+      'Email phụ':p.secondary_email||'',
+      'Website':p.website||'',
+      'Vai trò CRM':p.crm_role||p.role||'Commercial',
+      'Ngôn ngữ':p.language||'Vietnamese / English',
+      'Độ tin cậy':p.confidence||'High',
+      'Ghi chú kiểm tra':p.review_note||'',
+      'Số card trùng':0
+    };
+    
+    if(!dup){
+      contacts.push(c);
+    }else{
+      if(!c['Mobile']&&p.mobile) c['Mobile']=p.mobile;
+      if(!c['Email chính']&&(p.primary_email||p.email)) c['Email chính']=p.primary_email||p.email;
+      if(!c['Website']&&p.website) c['Website']=p.website;
+      if(!c['Địa chỉ']&&p.address) c['Địa chỉ']=p.address;
+    }
+    
+    attachPendingCard(c);
+    savedCount++;
+    
+    if(pendingScanImage){
+      sendToGoogleAppsScript(c,pendingScanImage,pendingScanSource);
+    }
+  }
+  
+  persist();
+  closeEdit();
+  render();
+  toast(currentLang==='en'?`Successfully saved ${savedCount} contacts!`:`Đã lưu thành công ${savedCount} liên hệ vào Google Sheet & Thư viện!`);
+}
+
+async function processNamecardFile(file){
+  if(scanBusy)return;if(!file||!file.type.startsWith('image/')){toast(scanT('invalid'));return}
+  scanBusy=true;pendingDuplicateId=null;setScanUI(scanT('preparing'),15);
+  initMultiCardEvents();
+  try{
+    pendingScanImage=await compressCardImage(file);
+    pendingScanSource='UPLOAD-'+new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14);
+    $('#scanPreview').src=pendingScanImage;
+    setScanUI(scanT('reading'),40);
+    
+    let parsedList=[];
+    try{
+      parsedList=await callGeminiVision(pendingScanImage);
+    }catch(err){
+      console.warn('Gemini vision error, falling back to single text parser',err);
+      parsedList=[{full_name:file.name.replace(/\.[^.]+$/,''),company:'IDD BIM CPG',confidence:'Medium'}];
+    }
+    
+    setScanUI(scanT('extracting'),80);
+    pendingExtractedCards=parsedList;
+    
+    if(parsedList.length>0){
+      renderMultiCardBar();
+      selectMultiCard(0);
+      const statusText=parsedList.length>1
+        ? (currentLang==='en'?`Found ${parsedList.length} namecards! Select card or batch save.`:`Phát hiện ${parsedList.length} namecards! Chọn card để xem hoặc Lưu tất cả.`)
+        : scanT('done');
+      setScanUI(statusText,100,'done');
+    }else{
+      setScanUI(scanT('noOCR'),100,'error');
+    }
   }catch(e){
     console.error(e);
     setScanUI(scanT('error'),100,'error');
@@ -1307,7 +1492,7 @@ async function processNamecardFile(file){
   }
 }
 
-function nextCardId(){let n=Math.max(0,...PHYSICAL_CARDS.map(c=>parseInt(String(c.Card_ID||'').replace(/\D/g,''))||0))+1;return'NC'+String(n).padStart(3,'0')}
+function nextPhysicalCardId(){let n=Math.max(0,...PHYSICAL_CARDS.map(c=>parseInt(String(c.Card_ID||'').replace(/\D/g,''))||0))+1;return'NC'+String(n).padStart(3,'0')}
 function refreshCardDuplicateFlags(){
   const counts={};PHYSICAL_CARDS.forEach(c=>counts[c.Contact_ID]=(counts[c.Contact_ID]||0)+1);
   PHYSICAL_CARDS.forEach(c=>{c.Duplicate_Count=counts[c.Contact_ID]||1;c.Duplicate=(counts[c.Contact_ID]||1)>1});
@@ -1321,7 +1506,7 @@ function persistScannedCards(){
 }
 function attachPendingCard(contact){
   if(!pendingScanImage||!contact)return;
-  const card={Card_ID:nextCardId(),Source:pendingScanSource||('UPLOAD-'+Date.now()),Contact_ID:contact.Contact_ID,Name:val(contact,'Họ tên'),Company:val(contact,'Tên ngắn')||val(contact,'Công ty / Tổ chức'),Title:val(contact,'Chức danh (VI)')||val(contact,'Job Title (EN)'),Duplicate:false,Duplicate_Count:1,Image:pendingScanImage};
+  const card={Card_ID:nextPhysicalCardId(),Source:pendingScanSource||('UPLOAD-'+Date.now()),Contact_ID:contact.Contact_ID,Name:val(contact,'Họ tên'),Company:val(contact,'Tên ngắn')||val(contact,'Công ty / Tổ chức'),Title:val(contact,'Chức danh (VI)')||val(contact,'Job Title (EN)'),Duplicate:false,Duplicate_Count:1,Image:pendingScanImage};
   PHYSICAL_CARDS.push(card);refreshCardDuplicateFlags();
   contact['Số card trùng']=cardCount(contact.Contact_ID);
   const srcs=(val(contact,'Nguồn card')?val(contact,'Nguồn card').split(/\s*,\s*/):[]);if(!srcs.includes(card.Source))srcs.push(card.Source);contact['Nguồn card']=srcs.filter(Boolean).join(', ');
