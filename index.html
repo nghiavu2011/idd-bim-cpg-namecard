@@ -1762,11 +1762,11 @@ function applyUserSessionUI(sess){
     badge.style.display='inline-flex';
     badge.innerHTML=sess.is_admin
       ? `<span style="color:#d97706;font-size:13px;">👑 Admin</span> <span style="color:#475569;font-weight:600;margin-left:2px;">(Nghia Vu)</span>`
-      : `<span style="color:#2563eb;font-size:13px;">👤 CPG Staff</span>`;
+      : `<span style="color:#2563eb;font-size:13px;">👤 CPG Member</span>`;
   }
   if(lockBtn) lockBtn.style.display='inline-flex';
   
-  // Non-admin staff cannot delete master records or reset
+  // Non-admin members cannot delete master records or reset
   if(!sess.is_admin){
     if($('#deleteBtn'))$('#deleteBtn').style.display='none';
     if($('#resetBtn'))$('#resetBtn').style.display='none';
@@ -1793,10 +1793,10 @@ function verifyPin(){
     toast(currentLang==='en'?'Unlocked as Admin!':'Đã mở khóa với quyền Quản trị viên!');
     syncLiveSheetData();
   }else if(STAFF_PINS.includes(pin)){
-    currentUserSession={unlocked:true,is_admin:false,role:'Staff',name:'CPG Staff'};
+    currentUserSession={unlocked:true,is_admin:false,role:'Member',name:'CPG Member'};
     localStorage.setItem('cpg_pin_session',JSON.stringify(currentUserSession));
     applyUserSessionUI(currentUserSession);
-    toast(currentLang==='en'?'Unlocked as CPG Staff!':'Đã mở khóa thư viện thành công!');
+    toast(currentLang==='en'?'Unlocked as CPG Member!':'Đã mở khóa với tư cách Thành viên CPG!');
     syncLiveSheetData();
   }else{
     err.textContent=currentLang==='en'?'Incorrect PIN. Try again.':'Mã PIN không chính xác. Vui lòng thử lại.';
@@ -2066,12 +2066,9 @@ function renderHelpGuide() {
         </div>
 
         <div class="guide-card">
-          <h3>🔒 4. Access, Language & Export</h3>
+          <h3>🔒 4. Access & Security</h3>
           <ul>
-            <li><b>4-Digit Passcodes</b>:
-              <br/>• <b>Admin</b>: <span class="guide-badge">7896</span> (Full control, delete records, master reset).
-              <br/>• <b>CPG Staff</b>: <span class="guide-badge">2026</span> (Search, filter, scan intake).
-            </li>
+            <li><b>Access Control</b>: Securely protected by internal CPG Passcode. Please use your assigned access code.</li>
             <li><b>Instant Lock</b>: Click <span class="guide-badge">🔒 Lock</span> in the topbar to securely lock your workspace when leaving your desk.</li>
             <li><b>100% Bilingual Switch</b>: Toggle between <span class="guide-badge">VN</span> and <span class="guide-badge">EN</span> anytime in the top bar.</li>
             <li><b>Export & Backup</b>: Click the <span class="guide-badge">•••</span> menu to export UTF-8 CSV or download a JSON backup.</li>
@@ -2114,12 +2111,9 @@ function renderHelpGuide() {
         </div>
 
         <div class="guide-card">
-          <h3>🔒 4. Quyền Truy cập, Ngôn ngữ & Xuất dữ liệu</h3>
+          <h3>🔒 4. Quyền Truy cập & Bảo mật</h3>
           <ul>
-            <li><b>Mã PIN 4 chữ số</b>:
-              <br/>• <b>Admin</b>: <span class="guide-badge">7896</span> (Toàn quyền quản trị, sửa, xóa bản ghi, khôi phục).
-              <br/>• <b>CPG Staff</b>: <span class="guide-badge">2026</span> (Tra cứu, lọc, quét nạp card mới).
-            </li>
+            <li><b>Quyền truy cập</b>: Bảo mật bằng mã Passcode nội bộ CPG. Vui lòng sử dụng mã PIN được cấp phát riêng.</li>
             <li><b>Khóa nhanh màn hình</b>: Bấm nút <span class="guide-badge">🔒 Khóa</span> ở góc trên thanh công cụ để bảo vệ dữ liệu khi rời máy.</li>
             <li><b>Chuyển đổi ngôn ngữ</b>: Bấm <span class="guide-badge">VN</span> / <span class="guide-badge">EN</span> để chuyển đổi 100% giao diện và địa điểm.</li>
             <li><b>Xuất báo cáo & Sao lưu</b>: Bấm menu <span class="guide-badge">•••</span> để xuất file CSV chuẩn Excel hoặc tải bản Backup JSON.</li>
