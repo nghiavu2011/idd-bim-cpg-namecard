@@ -614,10 +614,114 @@ body{font-size:14px;line-height:1.45}
   20%, 60% { transform: translateX(-8px); }
   40%, 80% { transform: translateX(8px); }
 }
+.help-bubble-wrap {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9990;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.help-bubble-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 10px 28px rgba(15,23,42,.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f4a61c;
+  cursor: pointer;
+  transition: all .25s cubic-bezier(.34,1.56,.64,1);
+}
+.help-bubble-btn:hover {
+  transform: translateY(-3px) scale(1.08);
+  background: #f4a61c;
+  color: #ffffff;
+  border-color: #f4a61c;
+  box-shadow: 0 14px 32px rgba(244,166,28,.38);
+}
+.help-bubble-btn .icon {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2.2;
+}
+.help-bubble-tooltip {
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 650;
+  padding: 6px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(0,0,0,.18);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: all .2s ease;
+}
+.help-bubble-wrap:hover .help-bubble-tooltip {
+  opacity: 1;
+  transform: translateX(0);
+}
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+  gap: 16px;
+}
+.guide-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  transition: border-color .15s ease;
+}
+.guide-card:hover {
+  border-color: #cbd5e1;
+}
+.guide-card h3 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 750;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.guide-card ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.guide-card li {
+  margin-bottom: 8px;
+}
+.guide-card li:last-child {
+  margin-bottom: 0;
+}
+.guide-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #e2e8f0;
+  color: #334155;
+  margin: 0 2px;
+}
 @media (max-width:860px){
   html{font-size:15px}
   .navbtn{font-size:13px !important}
   .tablewrap td{font-size:13px !important}
+  .help-bubble-wrap {
+    bottom: 16px;
+    right: 16px;
+  }
 }
 
 </style>
@@ -635,6 +739,7 @@ body{font-size:14px;line-height:1.45}
   <div class="topactions">
     <div id="userBadge" style="display:none;align-items:center;gap:6px;font-size:12px;font-weight:750;color:#4a5568;background:#fff;border:1px solid #d8dde6;border-radius:999px;padding:4px 11px;"></div>
     <button class="btn small" id="lockBtn" style="display:none;font-size:12px;padding:0 10px;" title="Khóa màn hình">🔒 Khóa</button>
+    <button class="iconbtn" id="helpTopBtn" aria-label="Hướng dẫn" title="Hướng dẫn & Quy tắc sử dụng"><svg class="icon"><use href="#i-help"/></svg></button>
     <button class="btn primary" id="addBtn"><svg class="icon"><use href="#i-plus"/></svg><span>Quét namecard</span></button>
     <button class="iconbtn" id="moreBtn" aria-label="Thêm"><svg class="icon"><use href="#i-more"/></svg></button>
   </div>
@@ -712,6 +817,26 @@ body{font-size:14px;line-height:1.45}
 
 <div class="modal channel-modal" id="mobileModal"><div class="modal-head"><div><h2>Liên hệ qua số di động</h2><p>Chọn ứng dụng phù hợp. Dịch vụ ngoài chỉ được mở sau khi bạn bấm.</p></div><button class="iconbtn" data-close-mobile><svg class="icon"><use href="#i-x"/></svg></button></div><div class="modal-body"><div class="channel-number"><div class="channel-icon"><svg class="icon"><use href="#i-phone"/></svg></div><div><b id="mobileActionNumber">—</b><span id="mobileActionName">—</span></div></div><div class="channel-grid" id="mobileActions"></div><p class="channel-note">Zalo / WhatsApp mở trang hoặc ứng dụng tương ứng; Viber sử dụng liên kết ứng dụng. Tùy thiết bị, trình duyệt có thể hỏi xác nhận trước khi mở app.</p></div></div>
 
+<!-- User Guide & Best Practices Modal -->
+<div class="modal" id="helpModal" style="max-width:760px;width:92vw;">
+  <div class="modal-head">
+    <div>
+      <h2 id="helpModalTitle">📖 Hướng dẫn & Quy tắc sử dụng</h2>
+      <p id="helpModalSub">Hệ thống số hóa danh bạ danh thiếp chuẩn IDD BIM CPG</p>
+    </div>
+    <button class="iconbtn" data-close-help><svg class="icon"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="modal-body" style="padding:20px 24px;max-height:75vh;overflow-y:auto;" id="helpModalBody"></div>
+</div>
+
+<!-- Floating Help Bubble Button -->
+<div class="help-bubble-wrap" id="helpBubbleWrap">
+  <div class="help-bubble-tooltip" id="helpTooltip">Hướng dẫn & Quy tắc</div>
+  <button class="help-bubble-btn" id="helpBubbleBtn" title="Hướng dẫn & Quy tắc sử dụng" aria-label="Hướng dẫn">
+    <svg class="icon"><use href="#i-help"/></svg>
+  </button>
+</div>
+
 <!-- Full-Screen Pure White CPG Lock Screen -->
 <div id="appLockScreen" style="position:fixed;inset:0;background:#ffffff;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;">
   <div style="max-width:390px;width:100%;text-align:center;">
@@ -736,6 +861,7 @@ body{font-size:14px;line-height:1.45}
 <div class="toast" id="toast"></div>
 
 <svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
 <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
 <symbol id="i-card" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></symbol>
 <symbol id="i-building" viewBox="0 0 24 24"><path d="M3 21h18M6 21V4h9v17M15 9h3v12M9 7h2M9 11h2M9 15h2"/></symbol>
@@ -993,9 +1119,9 @@ function deleteContact(){if(!editingId)return;let c=contacts.find(x=>x.Contact_I
 $('#nav').addEventListener('click',e=>{let b=e.target.closest('[data-view]');if(!b)return;currentView=b.dataset.view;render()});
 ['search','industry','role','country'].forEach(id=>$('#'+id).addEventListener(id==='search'?'input':'change',render));
 $('#viewSwitch').addEventListener('click',e=>{let b=e.target.closest('[data-mode]');if(!b)return;displayMode=b.dataset.mode;$$('#viewSwitch button').forEach(x=>x.classList.toggle('active',x===b));render()});
-document.addEventListener('keydown',e=>{if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();$('#search').focus()}if(e.key==='Escape'){closeMobileActions();closeDrawer();closeEdit();$('#sourceModal').classList.remove('show');$('#overlay').classList.remove('show')}});
+document.addEventListener('keydown',e=>{if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();$('#search').focus()}if(e.key==='Escape'){closeMobileActions();closeDrawer();closeEdit();if(typeof closeHelpGuide==='function')closeHelpGuide();$('#sourceModal').classList.remove('show');$('#overlay').classList.remove('show')}});
 document.addEventListener('click',e=>{let smart=e.target.closest('[data-smart]');if(smart){e.stopPropagation();return}let mob=e.target.closest('[data-mobile]');if(mob){e.preventDefault();e.stopPropagation();openMobileActions(mob.dataset.mobile,mob.dataset.mobileName||'',mob.dataset.mobileCountry||'');return}let cp=e.target.closest('[data-copy]');if(cp){e.preventDefault();e.stopPropagation();navigator.clipboard?.writeText(cp.dataset.copy);toast('Đã sao chép');return}let c=e.target.closest('[data-contact]');if(c){let id=c.dataset.contact;if(id)showContact(id)}let s=e.target.closest('[data-source]');if(s){e.stopPropagation();sourceView(s.dataset.source)}let ed=e.target.closest('[data-edit]');if(ed){e.stopPropagation();openEdit(ed.dataset.edit)}});
-$('#drawerClose').onclick=closeDrawer;$$('[data-close-mobile]').forEach(x=>x.onclick=closeMobileActions);$('#overlay').onclick=()=>{closeMobileActions();closeDrawer();closeEdit();$('#sourceModal').classList.remove('show');$('#overlay').classList.remove('show')};
+$('#drawerClose').onclick=closeDrawer;$$('[data-close-mobile]').forEach(x=>x.onclick=closeMobileActions);$('#overlay').onclick=()=>{closeMobileActions();closeDrawer();closeEdit();if(typeof closeHelpGuide==='function')closeHelpGuide();$('#sourceModal').classList.remove('show');$('#overlay').classList.remove('show')};
 $('#addBtn').onclick=()=>openEdit();$$('[data-close-modal]').forEach(x=>x.onclick=closeEdit);$$('[data-close-source]').forEach(x=>x.onclick=()=>{$('#sourceModal').classList.remove('show');$('#overlay').classList.remove('show')});$('#saveBtn').onclick=saveEdit;$('#deleteBtn').onclick=deleteContact;
 $('#moreBtn').onclick=e=>{e.stopPropagation();$('#moreMenu').classList.toggle('show')};document.addEventListener('click',e=>{if(!e.target.closest('#moreMenu')&&!e.target.closest('#moreBtn'))$('#moreMenu').classList.remove('show')});$('#exportBtn').onclick=exportCSV;$('#backupBtn').onclick=backup;$('#resetBtn').onclick=()=>{if(confirm('Khôi phục 17 contact gốc? Các chỉnh sửa local hiện tại sẽ bị thay thế.')){contacts=structuredClone(ORIGINAL_CONTACTS);persist();render();toast('Đã khôi phục dữ liệu gốc')}};
 
@@ -1890,6 +2016,137 @@ showContact=function(id){
   $('#overlay').classList.add('show');$('#drawer').classList.add('open');
 };
 
+/* ===== User Guide & Rules Module ===== */
+function renderHelpGuide() {
+  const title = $('#helpModalTitle');
+  const sub = $('#helpModalSub');
+  const body = $('#helpModalBody');
+  const tooltip = $('#helpTooltip');
+  const topBtn = $('#helpTopBtn');
+  
+  if (tooltip) tooltip.textContent = currentLang === 'en' ? 'User Guide & Rules' : 'Hướng dẫn & Quy tắc';
+  if (topBtn) topBtn.title = currentLang === 'en' ? 'User Guide & Best Practices' : 'Hướng dẫn & Quy tắc sử dụng';
+  if (title) title.textContent = currentLang === 'en' ? '📖 User Guide & Best Practices' : '📖 Hướng dẫn & Quy tắc sử dụng';
+  if (sub) sub.textContent = currentLang === 'en' ? 'IDD BIM CPG Namecard Intelligence System' : 'Hệ thống số hóa danh bạ danh thiếp chuẩn IDD BIM CPG';
+
+  if (!body) return;
+
+  if (currentLang === 'en') {
+    body.innerHTML = `
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h3>📸 1. Card Upload & Batch OCR</h3>
+          <ul>
+            <li><b>Single or Multi-Card Photo</b>: You can take a photo of a single namecard or place <b>2 to 10 cards</b> together on a clear surface. AI automatically isolates and extracts each card.</li>
+            <li><b>3 Easy Upload Methods</b>: Click <span class="guide-badge">Choose image</span>, Drag & Drop files into the scan box, or Paste directly from clipboard (<span class="guide-badge">Ctrl + V</span>).</li>
+            <li><b>Batch Save All</b>: For photos with multiple cards, click <span class="guide-badge" style="background:#059669;color:#fff;">Save all X contacts</span> to ingest all detected cards in 1 click.</li>
+            <li><b>Auto-Deduplication</b>: Automatically matches Email, Phone, or Name + Company to prevent duplicate contacts and links physical cards to a single master profile.</li>
+            <li><b>Cloud Sync</b>: Scanned data is saved directly to Google Sheets and high-res card images are preserved in CPG Google Drive.</li>
+          </ul>
+        </div>
+
+        <div class="guide-card">
+          <h3>🔍 2. Search & Multi-Filter</h3>
+          <ul>
+            <li><b>Quick Shortcut <span class="guide-badge">/</span></b>: Press the slash key anytime to instantly jump to the search bar.</li>
+            <li><b>Smart Full-Text Search</b>: Search by Name, Company, Email, Mobile, Job Title, Industry, City, or Address with or without accents.</li>
+            <li><b>Multi-Dimensional Filters</b>: Filter simultaneously by <i>Industry</i>, <i>CRM Role</i> (Decision Maker, Technical Influencer, Commercial), and <i>Country</i>.</li>
+            <li><b>View Switcher</b>: Toggle between clean <b>Table List</b> and visual <b>Grid Cards</b>.</li>
+          </ul>
+        </div>
+
+        <div class="guide-card">
+          <h3>⚡ 3. 1-Click Smart Actions</h3>
+          <ul>
+            <li><b>Mobile Number</b>: Click any phone number to quickly launch <b>Zalo</b>, <b>WhatsApp</b>, <b>Viber</b>, start a direct phone call, or copy the number.</li>
+            <li><b>Outlook Email</b>: Click any email link to instantly open a new draft in Outlook Office 365.</li>
+            <li><b>Company Search</b>: Click company names to search enterprise profiles directly on Google.</li>
+            <li><b>Maps Location</b>: Click addresses to pinpoint exact locations on Google Maps.</li>
+          </ul>
+        </div>
+
+        <div class="guide-card">
+          <h3>🔒 4. Access, Language & Export</h3>
+          <ul>
+            <li><b>4-Digit Passcodes</b>:
+              <br/>• <b>Admin</b>: <span class="guide-badge">7896</span> (Full control, delete records, master reset).
+              <br/>• <b>CPG Staff</b>: <span class="guide-badge">2026</span> (Search, filter, scan intake).
+            </li>
+            <li><b>Instant Lock</b>: Click <span class="guide-badge">🔒 Lock</span> in the topbar to securely lock your workspace when leaving your desk.</li>
+            <li><b>100% Bilingual Switch</b>: Toggle between <span class="guide-badge">VN</span> and <span class="guide-badge">EN</span> anytime in the top bar.</li>
+            <li><b>Export & Backup</b>: Click the <span class="guide-badge">•••</span> menu to export UTF-8 CSV or download a JSON backup.</li>
+          </ul>
+        </div>
+      </div>
+    `;
+  } else {
+    body.innerHTML = `
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h3>📸 1. Quy tắc Upload & Quét Card Hàng Loạt</h3>
+          <ul>
+            <li><b>Chụp đơn hoặc nhiều card cùng lúc</b>: Bạn có thể chụp 1 card hoặc xếp <b>2 đến 10 namecard</b> trên mặt bàn/mặt phẳng sáng rõ. AI tự động bóc tách từng chiếc danh thiếp riêng biệt.</li>
+            <li><b>3 cách nạp ảnh tiện lợi</b>: Bấm <span class="guide-badge">Chọn ảnh</span>, Kéo & thả file ảnh vào khung, hoặc Dán trực tiếp từ bộ nhớ tạm (<span class="guide-badge">Ctrl + V</span>).</li>
+            <li><b>Lưu hàng loạt 1-Click</b>: Khi ảnh có nhiều card, bấm nút <span class="guide-badge" style="background:#059669;color:#fff;">Lưu tất cả X liên hệ</span> để nạp toàn bộ danh sách vào Sheet trong 1 giây.</li>
+            <li><b>Tự động lọc trùng (Deduplicate)</b>: Đối chiếu thông minh theo Email, Số điện thoại hoặc Họ tên + Công ty để gộp các card vào 1 hồ sơ Master duy nhất.</li>
+            <li><b>Tự động đồng bộ Cloud</b>: Lưu trữ tức thì vào Google Sheet và lưu ảnh card gốc vào Google Drive nội bộ CPG.</li>
+          </ul>
+        </div>
+
+        <div class="guide-card">
+          <h3>🔍 2. Mẹo Tìm kiếm & Lọc Dữ liệu</h3>
+          <ul>
+            <li><b>Phím tắt nhanh <span class="guide-badge">/</span></b>: Bấm phím gạch chéo <code>/</code> bất kỳ lúc nào để nhảy ngay vào ô tìm kiếm.</li>
+            <li><b>Tìm kiếm toàn diện</b>: Hỗ trợ gõ tiếng Việt có dấu hoặc không dấu theo: Tên người, Tên công ty, Email, Điện thoại, Chức vụ, Ngành nghề, Thành phố...</li>
+            <li><b>Bộ lọc đa chiều</b>: Kết hợp lọc nhanh theo <i>Ngành cấp 1</i>, <i>Vai trò CRM</i> (Decision Maker, Technical Influencer, Commercial...), và <i>Quốc gia</i>.</li>
+            <li><b>Chuyển chế độ xem</b>: Linh hoạt chuyển đổi giữa dạng <b>Bảng chi tiết (List)</b> và <b>Thẻ trực quan (Grid)</b>.</li>
+          </ul>
+        </div>
+
+        <div class="guide-card">
+          <h3>⚡ 3. Thao tác Nhanh 1-Chạm</h3>
+          <ul>
+            <li><b>Số điện thoại di động</b>: Bấm vào số để mở ngay <b>Zalo</b>, <b>WhatsApp</b>, <b>Viber</b>, Gọi điện trực tiếp hoặc Sao chép nhanh vào clipboard.</li>
+            <li><b>Email Outlook</b>: Bấm vào địa chỉ email để mở ngay cửa sổ soạn thư trên Outlook Office 365.</li>
+            <li><b>Tên công ty</b>: Bấm vào tên doanh nghiệp để tra cứu thông tin nhanh trên Google.</li>
+            <li><b>Địa chỉ</b>: Bấm vào địa chỉ để mở định vị chính xác trên Google Maps.</li>
+          </ul>
+        </div>
+
+        <div class="guide-card">
+          <h3>🔒 4. Quyền Truy cập, Ngôn ngữ & Xuất dữ liệu</h3>
+          <ul>
+            <li><b>Mã PIN 4 chữ số</b>:
+              <br/>• <b>Admin</b>: <span class="guide-badge">7896</span> (Toàn quyền quản trị, sửa, xóa bản ghi, khôi phục).
+              <br/>• <b>CPG Staff</b>: <span class="guide-badge">2026</span> (Tra cứu, lọc, quét nạp card mới).
+            </li>
+            <li><b>Khóa nhanh màn hình</b>: Bấm nút <span class="guide-badge">🔒 Khóa</span> ở góc trên thanh công cụ để bảo vệ dữ liệu khi rời máy.</li>
+            <li><b>Chuyển đổi ngôn ngữ</b>: Bấm <span class="guide-badge">VN</span> / <span class="guide-badge">EN</span> để chuyển đổi 100% giao diện và địa điểm.</li>
+            <li><b>Xuất báo cáo & Sao lưu</b>: Bấm menu <span class="guide-badge">•••</span> để xuất file CSV chuẩn Excel hoặc tải bản Backup JSON.</li>
+          </ul>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function openHelpGuide() {
+  renderHelpGuide();
+  $('#helpModal')?.classList.add('show');
+  $('#overlay')?.classList.add('show');
+}
+
+function closeHelpGuide() {
+  $('#helpModal')?.classList.remove('show');
+  if(!$('#drawer').classList.contains('open') && !$('#editModal').classList.contains('show') && !$('#sourceModal').classList.contains('show') && !$('#mobileModal').classList.contains('show')) {
+    $('#overlay').classList.remove('show');
+  }
+}
+
+$('#helpBubbleBtn')?.addEventListener('click', openHelpGuide);
+$('#helpTopBtn')?.addEventListener('click', openHelpGuide);
+$$('[data-close-help]').forEach(b => b.onclick = closeHelpGuide);
+
 const _applyI18nV4=applyI18n;
 applyI18n=function(){
   _applyI18nV4();
@@ -1902,6 +2159,7 @@ applyI18n=function(){
   if(unlockBtn) unlockBtn.textContent=currentLang==='en'?'Unlock Directory':'Mở khóa thư viện';
   const lockBtn=$('#lockBtn');
   if(lockBtn) lockBtn.textContent=currentLang==='en'?'🔒 Lock':'🔒 Khóa';
+  renderHelpGuide();
   updateFilters();
 };
 
