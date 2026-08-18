@@ -578,6 +578,16 @@ body{font-size:14px;line-height:1.45}
 .drawer h2,.modal h2{font-size:22px !important}
 .drawer .meta-grid .label,.drawer .meta-grid .value,.field input,.field select,.field textarea{font-size:14px !important}
 .copybtn,.smart-link,.smart-field,.company-search{font-size:inherit !important}
+#pinInput:focus {
+  border-color: #f4a61c !important;
+  box-shadow: 0 0 0 4px rgba(244,166,28,.15) !important;
+  background: #ffffff !important;
+}
+@keyframes pinShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
 @media (max-width:860px){
   html{font-size:15px}
   .navbtn{font-size:13px !important}
@@ -598,7 +608,7 @@ body{font-size:14px;line-height:1.45}
   </nav>
   <div class="topactions">
     <div id="userBadge" style="display:none;align-items:center;gap:6px;font-size:12px;font-weight:750;color:#4a5568;background:#fff;border:1px solid #d8dde6;border-radius:999px;padding:4px 11px;"></div>
-    <button class="btn small" id="logoutBtn" style="display:none;font-size:11px;padding:0 8px;" title="Đăng xuất">Thoát</button>
+    <button class="btn small" id="lockBtn" style="display:none;font-size:12px;padding:0 10px;" title="Khóa màn hình">🔒 Khóa</button>
     <button class="btn primary" id="addBtn"><svg class="icon"><use href="#i-plus"/></svg><span>Quét namecard</span></button>
     <button class="iconbtn" id="moreBtn" aria-label="Thêm"><svg class="icon"><use href="#i-more"/></svg></button>
   </div>
@@ -663,36 +673,24 @@ body{font-size:14px;line-height:1.45}
 
 <div class="modal channel-modal" id="mobileModal"><div class="modal-head"><div><h2>Liên hệ qua số di động</h2><p>Chọn ứng dụng phù hợp. Dịch vụ ngoài chỉ được mở sau khi bạn bấm.</p></div><button class="iconbtn" data-close-mobile><svg class="icon"><use href="#i-x"/></svg></button></div><div class="modal-body"><div class="channel-number"><div class="channel-icon"><svg class="icon"><use href="#i-phone"/></svg></div><div><b id="mobileActionNumber">—</b><span id="mobileActionName">—</span></div></div><div class="channel-grid" id="mobileActions"></div><p class="channel-note">Zalo / WhatsApp mở trang hoặc ứng dụng tương ứng; Viber sử dụng liên kết ứng dụng. Tùy thiết bị, trình duyệt có thể hỏi xác nhận trước khi mở app.</p></div></div>
 
-<!-- CPG Corporate Email Passcode Gate -->
-<div class="modal" id="authModal" style="max-width:440px;z-index:9999;box-shadow:0 30px 90px rgba(13,23,38,.48);">
-  <div class="modal-head" style="text-align:center;display:block;padding:26px 22px 14px;border-bottom:1px solid #edf0f5;">
-    <div style="width:68px;height:48px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:14px;border:1px solid #d8dde6;box-shadow:0 6px 18px rgba(0,0,0,.06);padding:4px;">
-      <img id="authLogo" src="" alt="CPG" style="max-width:92%;max-height:92%;object-fit:contain;" />
+<!-- Full-Screen Pure White CPG Lock Screen -->
+<div id="appLockScreen" style="position:fixed;inset:0;background:#ffffff;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;">
+  <div style="max-width:390px;width:100%;text-align:center;">
+    <div style="width:78px;height:54px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:16px;border:1px solid #e2e8f0;box-shadow:0 8px 24px rgba(0,0,0,.06);padding:6px;">
+      <img id="lockLogo" src="" alt="CPG" style="max-width:92%;max-height:92%;object-fit:contain;" />
     </div>
-    <h2 style="font-size:20px;font-weight:800;margin:0 0 6px;color:#17141b;letter-spacing:-.02em;">IDD BIM CPG Namecard</h2>
-    <p style="font-size:12px;color:#6b7280;margin:0;line-height:1.5;">Thư viện danh bạ danh thiếp nội bộ. Xác thực bằng email công ty CPG để nhận mã OTP.</p>
-  </div>
-  <div class="modal-body" style="padding:18px 22px 26px;">
-    <div id="authStep1">
-      <div class="field full" style="margin-bottom:14px;">
-        <label style="font-size:11px;font-weight:760;color:#556170;margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.06em;">Email công ty CPG của bạn</label>
-        <input type="email" id="authEmailInput" placeholder="vu.trong.nghia@cpgcorp.com.sg" style="width:100%;height:44px;padding:0 12px;border-radius:10px;border:1px solid #d8dde6;font-size:13px;outline:0;" />
-      </div>
-      <button class="btn primary" id="authGetOtpBtn" type="button" style="width:100%;height:44px;font-size:13px;font-weight:750;border-radius:10px;display:flex;align-items:center;justify-content:center;">
-        <span>Nhận mã xác thực qua Email</span>
-      </button>
+    <h1 style="font-size:22px;font-weight:800;margin:0 0 6px;color:#17141b;letter-spacing:-.02em;">IDD BIM CPG Namecard</h1>
+    <p id="lockSubtitle" style="font-size:13px;color:#64748b;margin:0 0 24px;line-height:1.5;">Thư viện danh bạ danh thiếp nội bộ CPG.<br/>Nhập mã PIN 4 ký tự để mở khóa.</p>
+    
+    <div style="margin-bottom:18px;position:relative;">
+      <input type="password" id="pinInput" maxlength="4" inputmode="numeric" placeholder="• • • •" autocomplete="off" style="width:100%;height:58px;text-align:center;letter-spacing:16px;font-size:30px;font-weight:800;border-radius:14px;border:2px solid #e2e8f0;background:#f8fafc;outline:0;color:#0f172a;transition:.2s;box-sizing:border-box;" />
     </div>
-    <div id="authStep2" style="display:none;">
-      <div class="field full" style="margin-bottom:14px;">
-        <label style="font-size:11px;font-weight:760;color:#556170;margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.06em;">Nhập mã OTP 6 chữ số từ hòm thư</label>
-        <input type="text" id="authOtpInput" maxlength="6" placeholder="• • • • • •" style="width:100%;height:48px;text-align:center;letter-spacing:6px;font-size:20px;font-weight:800;border-radius:10px;border:1.5px solid #f4a61c;background:#fffcf5;outline:0;color:#17141b;" />
-      </div>
-      <button class="btn primary" id="authVerifyOtpBtn" type="button" style="width:100%;height:44px;font-size:13px;font-weight:750;border-radius:10px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;">
-        <span>Xác nhận & Vào thư viện</span>
-      </button>
-      <button class="btn ghost small" id="authBackBtn" type="button" style="width:100%;color:#6b7280;font-size:11px;">Đổi email khác</button>
-    </div>
-    <div id="authMsg" style="font-size:12px;margin-top:12px;text-align:center;min-height:16px;line-height:1.4;"></div>
+    
+    <button class="btn primary" id="unlockBtn" type="button" style="width:100%;height:46px;font-size:14px;font-weight:750;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;">
+      <span>Mở khóa thư viện</span>
+    </button>
+    
+    <div id="pinError" style="font-size:12px;color:#ef4444;font-weight:600;min-height:18px;"></div>
   </div>
 </div>
 
@@ -758,9 +756,143 @@ function smartEmail(email){if(!email)return'';return `<a class="smart-link muted
 function smartWebsite(site){let href=safeWebsiteUrl(site);if(!site)return'';if(!href)return esc(site);return `<a class="smart-link" data-smart href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="Mở website ở tab mới"><span class="link-text">${esc(site)}</span>${externalIcon('i-external')}</a>`}
 function smartMobile(c,number=null){let n=number||val(c,'Mobile');if(!n)return'';return `<button class="smart-link muted-link" data-mobile="${esc(n)}" data-mobile-name="${esc(val(c,'Họ tên'))}" data-mobile-country="${esc(val(c,'Quốc gia'))}" title="Mở Zalo / WhatsApp / Viber / gọi điện"><span class="link-text">${esc(n)}</span>${externalIcon('i-message')}</button>`}
 function smartLandline(c,number=null){let n=number||val(c,'Điện thoại bàn');if(!n)return'';let normalized=normalizePhone(n,val(c,'Quốc gia'));return `<a class="smart-link muted-link" data-smart href="tel:${esc(normalized||n.replace(/\s+/g,''))}" title="Gọi số điện thoại"><span class="link-text">${esc(n)}</span>${externalIcon('i-phone')}</a>`}
-function smartAddress(c,address=null){let a=address||val(c,'Địa chỉ');let fallback=[val(c,'Thành phố'),val(c,'Quốc gia')].filter(Boolean).join(', ');let q=a||fallback;if(!q)return'';return `<a class="smart-link muted-link location-link" data-smart href="${googleMapsUrl(q)}" target="_blank" rel="noopener noreferrer" title="Mở trên Google Maps"><span class="link-text">${esc(a||fallback)}</span>${externalIcon('i-map')}</a>`}
-function smartField(c,key){let v=val(c,key);if(!v)return'';if(key==='Mobile')return smartMobile(c,v);if(key==='Điện thoại bàn')return smartLandline(c,v);if(key==='Email chính'||key==='Email phụ')return smartEmail(v);if(key==='Website')return smartWebsite(v);if(key==='Công ty / Tổ chức')return smartCompany(c,v);if(key==='Địa chỉ')return smartAddress(c,v);return esc(v)}
-function openMobileActions(number,name='',country=''){let normalized=normalizePhone(number,country),digits=normalized.replace(/\D/g,'');$('#mobileActionNumber').textContent=number;$('#mobileActionName').textContent=[name,country].filter(Boolean).join(' · ')||'Chọn kênh liên hệ';let call=normalized||String(number).replace(/\s+/g,'');let actions=[
+const COUNTRY_MAP = {
+  'việt nam': { vi: 'Việt Nam', en: 'Vietnam' },
+  'vietnam': { vi: 'Việt Nam', en: 'Vietnam' },
+  'nhật bản': { vi: 'Nhật Bản', en: 'Japan' },
+  'japan': { vi: 'Nhật Bản', en: 'Japan' },
+  'singapore': { vi: 'Singapore', en: 'Singapore' },
+  'malaysia': { vi: 'Malaysia', en: 'Malaysia' },
+  'vương quốc anh': { vi: 'Vương quốc Anh', en: 'United Kingdom' },
+  'united kingdom': { vi: 'Vương quốc Anh', en: 'United Kingdom' },
+  'uk': { vi: 'Vương quốc Anh', en: 'United Kingdom' },
+  'great britain': { vi: 'Vương quốc Anh', en: 'United Kingdom' },
+  'anh': { vi: 'Vương quốc Anh', en: 'United Kingdom' },
+  'hoa kỳ': { vi: 'Hoa Kỳ', en: 'United States' },
+  'mỹ': { vi: 'Hoa Kỳ', en: 'United States' },
+  'united states': { vi: 'Hoa Kỳ', en: 'United States' },
+  'usa': { vi: 'Hoa Kỳ', en: 'United States' },
+  'hàn quốc': { vi: 'Hàn Quốc', en: 'South Korea' },
+  'south korea': { vi: 'Hàn Quốc', en: 'South Korea' },
+  'korea': { vi: 'Hàn Quốc', en: 'South Korea' },
+  'trung quốc': { vi: 'Trung Quốc', en: 'China' },
+  'china': { vi: 'Trung Quốc', en: 'China' },
+  'đài loan': { vi: 'Đài Loan', en: 'Taiwan' },
+  'taiwan': { vi: 'Đài Loan', en: 'Taiwan' },
+  'thái lan': { vi: 'Thái Lan', en: 'Thailand' },
+  'thailand': { vi: 'Thái Lan', en: 'Thailand' },
+  'đức': { vi: 'Đức', en: 'Germany' },
+  'germany': { vi: 'Đức', en: 'Germany' },
+  'pháp': { vi: 'Pháp', en: 'France' },
+  'france': { vi: 'Pháp', en: 'France' },
+  'úc': { vi: 'Úc', en: 'Australia' },
+  'australia': { vi: 'Úc', en: 'Australia' }
+};
+
+const CITY_MAP = {
+  'hà nội': { vi: 'Hà Nội', en: 'Hanoi' },
+  'ha noi': { vi: 'Hà Nội', en: 'Hanoi' },
+  'hanoi': { vi: 'Hà Nội', en: 'Hanoi' },
+  'hồ chí minh': { vi: 'TP. Hồ Chí Minh', en: 'Ho Chi Minh City' },
+  'tp. hồ chí minh': { vi: 'TP. Hồ Chí Minh', en: 'Ho Chi Minh City' },
+  'tp hồ chí minh': { vi: 'TP. Hồ Chí Minh', en: 'Ho Chi Minh City' },
+  'tp.hcm': { vi: 'TP. Hồ Chí Minh', en: 'Ho Chi Minh City' },
+  'tp hcm': { vi: 'TP. Hồ Chí Minh', en: 'Ho Chi Minh City' },
+  'hcmc': { vi: 'TP. Hồ Chí Minh', en: 'Ho Chi Minh City' },
+  'hanoi / hcmc': { vi: 'Hà Nội / TP.HCM', en: 'Hanoi / HCMC' },
+  'ho chi minh city': { vi: 'TP. Hồ Chí Minh', en: 'Ho Chi Minh City' },
+  'quảng ngãi': { vi: 'Quảng Ngãi', en: 'Quang Ngai' },
+  'quang ngai': { vi: 'Quảng Ngãi', en: 'Quang Ngai' },
+  'đà nẵng': { vi: 'Đà Nẵng', en: 'Da Nang' },
+  'da nang': { vi: 'Đà Nẵng', en: 'Da Nang' },
+  'hải phòng': { vi: 'Hải Phòng', en: 'Hai Phong' },
+  'cần thơ': { vi: 'Cần Thơ', en: 'Can Tho' },
+  'bình dương': { vi: 'Bình Dương', en: 'Binh Duong' },
+  'đồng nai': { vi: 'Đồng Nai', en: 'Dong Nai' },
+  'bắc ninh': { vi: 'Bắc Ninh', en: 'Bac Ninh' },
+  'vũng tàu': { vi: 'Vũng Tàu', en: 'Vung Tau' },
+  'tokyo': { vi: 'Tokyo', en: 'Tokyo' },
+  'london': { vi: 'London', en: 'London' },
+  'singapore': { vi: 'Singapore', en: 'Singapore' },
+  'puchong, selangor': { vi: 'Puchong, Selangor', en: 'Puchong, Selangor' }
+};
+
+function translateCountry(val, lang = currentLang) {
+  if (!val) return '';
+  const key = String(val).trim().toLowerCase();
+  if (COUNTRY_MAP[key]) return COUNTRY_MAP[key][lang] || COUNTRY_MAP[key].en;
+  return val;
+}
+
+function translateCity(val, lang = currentLang) {
+  if (!val) return '';
+  const key = String(val).trim().toLowerCase();
+  if (CITY_MAP[key]) return CITY_MAP[key][lang] || CITY_MAP[key].en;
+  return val;
+}
+
+function translateAddress(addr, lang = currentLang) {
+  if (!addr) return '';
+  if (lang !== 'en') return addr;
+  let s = String(addr);
+  s = s.replace(/\bTầng\s+(\d+)/gi, 'Floor $1')
+       .replace(/\bTầng\s+trệt\b/gi, 'Ground Floor')
+       .replace(/\bTòa\s+nhà\s+/gi, 'Building ')
+       .replace(/\bTòa\s+/gi, 'Building ')
+       .replace(/\bSố\s+(\d+)/gi, 'No. $1')
+       .replace(/\bPhố\s+/gi, 'Street, ')
+       .replace(/\bĐường\s+/gi, 'Street, ')
+       .replace(/\bQuận\s+/gi, 'District, ')
+       .replace(/\bQ\.\s*/gi, 'District, ')
+       .replace(/\bHuyện\s+/gi, 'District, ')
+       .replace(/\bPhường\s+/gi, 'Ward, ')
+       .replace(/\bP\.\s*/gi, 'Ward, ')
+       .replace(/\bXã\s+/gi, 'Commune, ')
+       .replace(/\bTỉnh\s+/gi, 'Province, ')
+       .replace(/\bThành\s+phố\s+/gi, 'City, ')
+       .replace(/\bTP\.\s*/gi, 'City, ')
+       .replace(/\bKhu\s+kinh\s+tế\s+/gi, 'Economic Zone, ')
+       .replace(/\bKhu\s+công\s+nghiệp\s+/gi, 'Industrial Park, ')
+       .replace(/\bViệt\s*Nam\b/gi, 'Vietnam')
+       .replace(/\bHà\s*Nội\b/gi, 'Hanoi')
+       .replace(/\bHồ\s*Chí\s*Minh\b/gi, 'Ho Chi Minh City')
+       .replace(/\s*,\s*,+/g, ', ')
+       .replace(/\s+/g, ' ')
+       .trim();
+  return s;
+}
+
+function smartAddress(c,address=null){
+  let a=address||val(c,'Địa chỉ');
+  let rawCity=val(c,'Thành phố');
+  let rawCountry=val(c,'Quốc gia');
+  let trCity=translateCity(rawCity,currentLang);
+  let trCountry=translateCountry(rawCountry,currentLang);
+  
+  let locText='';
+  if(a){
+    locText=translateAddress(a,currentLang);
+  }else{
+    locText=[trCity,trCountry].filter(Boolean).join(', ');
+  }
+  if(!locText)return'';
+  return `<a class="smart-link muted-link location-link" data-smart href="${googleMapsUrl(a||locText)}" target="_blank" rel="noopener noreferrer" title="${esc(t('tipMaps'))}"><span class="link-text">${esc(locText)}</span>${externalIcon('i-map')}</a>`;
+}
+
+function smartField(c,key){
+  let v=val(c,key);
+  if(!v)return'';
+  if(key==='Mobile')return smartMobile(c,v);
+  if(key==='Điện thoại bàn')return smartLandline(c,v);
+  if(key==='Email chính'||key==='Email phụ')return smartEmail(v);
+  if(key==='Website')return smartWebsite(v);
+  if(key==='Công ty / Tổ chức')return smartCompany(c,v);
+  if(key==='Địa chỉ')return smartAddress(c,v);
+  if(key==='Quốc gia')return esc(translateCountry(v,currentLang));
+  if(key==='Thành phố')return esc(translateCity(v,currentLang));
+  return esc(v);
+}
+function openMobileActions(number,name='',country=''){let normalized=normalizePhone(number,country),digits=normalized.replace(/\D/g,'');$('#mobileActionNumber').textContent=number;$('#mobileActionName').textContent=[name,translateCountry(country,currentLang)].filter(Boolean).join(' · ')||'Chọn kênh liên hệ';let call=normalized||String(number).replace(/\s+/g,'');let actions=[
  {name:'Gọi điện',sub:'Mở ứng dụng gọi điện',badge:'TEL',href:`tel:${call}`},
  {name:'SMS',sub:'Soạn tin nhắn SMS',badge:'SMS',href:`sms:${call}`},
  {name:'Zalo',sub:'Mở hồ sơ / chat theo số',badge:'ZA',href:`https://zalo.me/${digits}`,blank:true},
@@ -772,8 +904,29 @@ function cardCount(cid){return PHYSICAL_CARDS.filter(c=>c.Contact_ID===cid).leng
 function duplicateCardCount(){return PHYSICAL_CARDS.length-new Set(PHYSICAL_CARDS.map(c=>c.Contact_ID)).size}
 function reviewContacts(){return contacts.filter(c=>['Medium','Low'].includes(val(c,'Độ tin cậy')))}
 function companies(){let map=new Map;contacts.forEach(c=>{let key=val(c,'Công ty / Tổ chức')||'Chưa xác định';if(!map.has(key))map.set(key,{name:key,short:val(c,'Tên ngắn'),industry:val(c,'Ngành cấp 1'),country:val(c,'Quốc gia'),city:val(c,'Thành phố'),contacts:[],decision:0});let x=map.get(key);x.contacts.push(c);if(val(c,'Vai trò CRM').toLowerCase().includes('decision maker'))x.decision++});return [...map.values()].sort((a,b)=>b.contacts.length-a.contacts.length||a.name.localeCompare(b.name,'vi'))}
-function currentFilteredContacts(){let q=norm($('#search').value),ind=$('#industry').value,role=$('#role').value,country=$('#country').value;return contacts.filter(c=>{let blob=norm(Object.values(c).join(' | '));return(!q||blob.includes(q))&&(!ind||val(c,'Ngành cấp 1')===ind)&&(!role||roleBucket(val(c,'Vai trò CRM'))===role)&&(!country||val(c,'Quốc gia')===country)})}
-function updateFilters(){let els=[['#industry',t('allIndustry'),uniq(contacts.map(c=>val(c,'Ngành cấp 1')))],['#role',t('allRole'),uniq(contacts.map(c=>roleBucket(val(c,'Vai trò CRM'))))],['#country',t('allCountry'),uniq(contacts.map(c=>val(c,'Quốc gia')))]];els.forEach(([sel,label,items])=>{let e=$(sel),old=e.value;e.innerHTML=`<option value="">${label}</option>`+items.map(x=>`<option>${esc(x)}</option>`).join('');if([...e.options].some(o=>o.value===old))e.value=old})}
+function currentFilteredContacts(){
+  let q=norm($('#search').value),ind=$('#industry').value,role=$('#role').value,country=$('#country').value;
+  return contacts.filter(c=>{
+    let countryTr=translateCountry(val(c,'Quốc gia'),currentLang);
+    let cityTr=translateCity(val(c,'Thành phố'),currentLang);
+    let blob=norm(Object.values(c).concat([countryTr,cityTr]).join(' | '));
+    return(!q||blob.includes(q))&&(!ind||val(c,'Ngành cấp 1')===ind)&&(!role||roleBucket(val(c,'Vai trò CRM'))===role)&&(!country||val(c,'Quốc gia')===country)
+  })
+}
+function updateFilters(){
+  let rawCountries=uniq(contacts.map(c=>val(c,'Quốc gia')));
+  let countryItems=rawCountries.map(r=>({value:r,label:translateCountry(r,currentLang)})).sort((a,b)=>a.label.localeCompare(b.label,currentLang==='en'?'en':'vi'));
+  let els=[
+    ['#industry',t('allIndustry'),uniq(contacts.map(c=>val(c,'Ngành cấp 1'))).map(x=>({value:x,label:x}))],
+    ['#role',t('allRole'),uniq(contacts.map(c=>roleBucket(val(c,'Vai trò CRM')))).map(x=>({value:x,label:x}))],
+    ['#country',t('allCountry'),countryItems]
+  ];
+  els.forEach(([sel,defaultLabel,items])=>{
+    let e=$(sel),old=e.value;
+    e.innerHTML=`<option value="">${defaultLabel}</option>`+items.map(x=>`<option value="${esc(x.value)}">${esc(x.label)}</option>`).join('');
+    if([...e.options].some(o=>o.value===old))e.value=old;
+  });
+}
 function updateStats(){$('#nContacts').textContent=contacts.length;$('#nCards').textContent=PHYSICAL_CARDS.length;$('#nCompanies').textContent=companies().length}
 function confidencePill(c){let x=val(c,'Độ tin cậy');return pill(x,x==='High'?'green':x==='Medium'?'orange':'red')}
 function rolePill(c){let x=roleBucket(val(c,'Vai trò CRM'));return pill(x,x==='Decision Maker'?'blue':x==='Technical Influencer'?'purple':'')}
@@ -1252,49 +1405,55 @@ $('#saveBtn').onclick=saveEdit;
 
 let currentUserSession=null;
 
+const ADMIN_PINS=['7896','1988'];
+const STAFF_PINS=['2026','1234','8888'];
+
 function initAuth(){
-  const logo=$('#authLogo');
-  if(logo)logo.src=CPG_LOGO;
+  const logo=$('#lockLogo');
+  if(logo) logo.src=CPG_LOGO;
   
-  const saved=localStorage.getItem('cpg_auth_session');
+  const saved=localStorage.getItem('cpg_pin_session');
   if(saved){
     try{
       currentUserSession=JSON.parse(saved);
-      if(currentUserSession&&currentUserSession.email){
+      if(currentUserSession&&currentUserSession.unlocked){
         applyUserSessionUI(currentUserSession);
         return;
       }
     }catch(e){}
   }
-  showAuthModal();
+  showLockScreen();
 }
 
-function showAuthModal(){
-  $('#overlay').classList.add('show');
-  $('#authModal').classList.add('show');
-  $('#authStep1').style.display='block';
-  $('#authStep2').style.display='none';
-  $('#authMsg').innerHTML='';
-  $('#authEmailInput').focus();
-}
-
-function hideAuthModal(){
-  $('#authModal').classList.remove('show');
-  if(!$('#drawer').classList.contains('open')&&!$('#editModal').classList.contains('show')&&!$('#sourceModal').classList.contains('show')&&!$('#mobileModal').classList.contains('show')){
-    $('#overlay').classList.remove('show');
+function showLockScreen(){
+  const lock=$('#appLockScreen');
+  if(lock){
+    lock.style.display='flex';
+    const pinIn=$('#pinInput');
+    if(pinIn){
+      pinIn.value='';
+      setTimeout(()=>pinIn.focus(),80);
+    }
+    const err=$('#pinError');
+    if(err) err.textContent='';
   }
+}
+
+function hideLockScreen(){
+  const lock=$('#appLockScreen');
+  if(lock) lock.style.display='none';
 }
 
 function applyUserSessionUI(sess){
   const badge=$('#userBadge');
-  const logoutBtn=$('#logoutBtn');
+  const lockBtn=$('#lockBtn');
   if(badge){
     badge.style.display='inline-flex';
     badge.innerHTML=sess.is_admin
-      ? `<span style="color:#d97706;font-size:13px;">👑 Admin:</span> <span style="max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(sess.email)}</span>`
-      : `<span style="color:#2563eb;font-size:13px;">👤</span> <span style="max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(sess.email)}</span>`;
+      ? `<span style="color:#d97706;font-size:13px;">👑 Admin</span> <span style="color:#475569;font-weight:600;margin-left:2px;">(Nghia Vu)</span>`
+      : `<span style="color:#2563eb;font-size:13px;">👤 CPG Staff</span>`;
   }
-  if(logoutBtn) logoutBtn.style.display='inline-flex';
+  if(lockBtn) lockBtn.style.display='inline-flex';
   
   // Non-admin staff cannot delete master records or reset
   if(!sess.is_admin){
@@ -1304,105 +1463,59 @@ function applyUserSessionUI(sess){
     if($('#deleteBtn'))$('#deleteBtn').style.display='inline-flex';
     if($('#resetBtn'))$('#resetBtn').style.display='flex';
   }
-  hideAuthModal();
+  hideLockScreen();
 }
 
-const ALLOWED_CPG_DOMAINS=['cpgcorp.com.sg'];
-const ADMIN_CPG_EMAILS=['vu.trong.nghia@cpgcorp.com.sg'];
-
-// Auth Event handlers
-$('#authGetOtpBtn')?.addEventListener('click',async()=>{
-  const email=$('#authEmailInput').value.trim().toLowerCase();
-  const msg=$('#authMsg');
-  if(!email||!email.includes('@')){
-    msg.innerHTML='<span style="color:#dc2626;">Vui lòng nhập đúng địa chỉ email.</span>';
+function verifyPin(){
+  const pinInput=$('#pinInput');
+  const err=$('#pinError');
+  const pin=pinInput.value.trim();
+  if(!pin||pin.length<4){
+    err.textContent=currentLang==='en'?'Please enter 4-digit PIN':'Vui lòng nhập đủ mã PIN 4 ký tự';
     return;
   }
   
-  const domain=email.split('@')[1];
-  const isAllowed=ALLOWED_CPG_DOMAINS.includes(domain)||ADMIN_CPG_EMAILS.includes(email);
-  if(!isAllowed){
-    msg.innerHTML='<span style="color:#dc2626;">Chỉ chấp nhận email công ty có tên miền <b>@cpgcorp.com.sg</b>.</span>';
-    return;
+  if(ADMIN_PINS.includes(pin)){
+    currentUserSession={unlocked:true,is_admin:true,role:'Admin',name:'Nghia Vu'};
+    localStorage.setItem('cpg_pin_session',JSON.stringify(currentUserSession));
+    applyUserSessionUI(currentUserSession);
+    toast(currentLang==='en'?'Unlocked as Admin!':'Đã mở khóa với quyền Quản trị viên!');
+    syncLiveSheetData();
+  }else if(STAFF_PINS.includes(pin)){
+    currentUserSession={unlocked:true,is_admin:false,role:'Staff',name:'CPG Staff'};
+    localStorage.setItem('cpg_pin_session',JSON.stringify(currentUserSession));
+    applyUserSessionUI(currentUserSession);
+    toast(currentLang==='en'?'Unlocked as CPG Staff!':'Đã mở khóa thư viện thành công!');
+    syncLiveSheetData();
+  }else{
+    err.textContent=currentLang==='en'?'Incorrect PIN. Try again.':'Mã PIN không chính xác. Vui lòng thử lại.';
+    pinInput.style.borderColor='#ef4444';
+    pinInput.style.animation='pinShake .3s ease';
+    setTimeout(()=>{
+      pinInput.value='';
+      pinInput.style.animation='';
+      pinInput.style.borderColor='#e2e8f0';
+      pinInput.focus();
+    },400);
   }
-  
-  msg.innerHTML='<span style="color:#4b5563;">Đang kết nối và gửi mã xác thực tới hòm thư CPG...</span>';
-  $('#authGetOtpBtn').disabled=true;
-  
-  try{
-    const res=await fetch(APPS_SCRIPT_URL,{
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({action:'requestOtp',email:email})
-    }).then(r=>r.json());
-    
-    $('#authGetOtpBtn').disabled=false;
-    
-    if(res&&res.ok){
-      $('#authStep1').style.display='none';
-      $('#authStep2').style.display='block';
-      msg.innerHTML=`<span style="color:#059669;font-weight:600;">Mã xác thực 6 số đã được gửi tới <b>${esc(email)}</b>. Vui lòng mở Outlook / Webmail để lấy mã.</span>`;
-      $('#authOtpInput').value='';
-      $('#authOtpInput').focus();
-    }else{
-      msg.innerHTML=`<span style="color:#dc2626;">${esc(res.error||'Không thể gửi mã xác thực. Vui lòng thử lại.')}</span>`;
-    }
-  }catch(err){
-    $('#authGetOtpBtn').disabled=false;
-    msg.innerHTML='<span style="color:#dc2626;">Lỗi kết nối máy chủ xác thực. Vui lòng thử lại sau giây lát.</span>';
+}
+
+$('#pinInput')?.addEventListener('input',e=>{
+  if(e.target.value.length===4){
+    verifyPin();
   }
 });
-
-$('#authVerifyOtpBtn')?.addEventListener('click',async()=>{
-  const email=$('#authEmailInput').value.trim().toLowerCase();
-  const otp=$('#authOtpInput').value.trim();
-  const msg=$('#authMsg');
-  if(!otp||otp.length<6){
-    msg.innerHTML='<span style="color:#dc2626;">Vui lòng nhập đủ 6 chữ số mã OTP.</span>';
-    return;
-  }
-  
-  msg.innerHTML='<span style="color:#4b5563;">Đang kiểm tra mã xác thực...</span>';
-  $('#authVerifyOtpBtn').disabled=true;
-  
-  try{
-    const res=await fetch(APPS_SCRIPT_URL,{
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({action:'verifyOtp',email:email,otp:otp})
-    }).then(r=>r.json());
-    
-    $('#authVerifyOtpBtn').disabled=false;
-    if(res&&res.ok){
-      currentUserSession=res;
-      localStorage.setItem('cpg_auth_session',JSON.stringify(res));
-      applyUserSessionUI(res);
-      toast(currentLang==='en'?'Logged in successfully!':'Đăng nhập thành công!');
-      syncLiveSheetData();
-    }else{
-      msg.innerHTML=`<span style="color:#dc2626;">${esc(res.error||'Mã xác thực không chính xác hoặc đã hết hạn.')}</span>`;
-    }
-  }catch(err){
-    $('#authVerifyOtpBtn').disabled=false;
-    msg.innerHTML='<span style="color:#dc2626;">Lỗi kết nối kiểm tra xác thực.</span>';
-  }
+$('#pinInput')?.addEventListener('keydown',e=>{
+  if(e.key==='Enter') verifyPin();
 });
+$('#unlockBtn')?.addEventListener('click',verifyPin);
 
-$('#authBackBtn')?.addEventListener('click',()=>{
-  $('#authStep2').style.display='none';
-  $('#authStep1').style.display='block';
-  $('#authMsg').innerHTML='';
-  $('#authEmailInput').focus();
-});
-
-$('#logoutBtn')?.addEventListener('click',()=>{
-  if(confirm(currentLang==='en'?'Are you sure you want to log out?':'Bạn có chắc muốn đăng xuất?')){
-    localStorage.removeItem('cpg_auth_session');
-    currentUserSession=null;
-    $('#userBadge').style.display='none';
-    $('#logoutBtn').style.display='none';
-    showAuthModal();
-  }
+$('#lockBtn')?.addEventListener('click',()=>{
+  localStorage.removeItem('cpg_pin_session');
+  currentUserSession=null;
+  if($('#userBadge'))$('#userBadge').style.display='none';
+  if($('#lockBtn'))$('#lockBtn').style.display='none';
+  showLockScreen();
 });
 
 const SPREADSHEET_ID='13XsLUK792UkdDuXYHSdjIGJPX7AazQt6hROtTa0LRCI';
@@ -1539,11 +1652,38 @@ smartEmail=function(email){if(!email)return'';return `<a class="smart-link muted
 smartWebsite=function(site){let href=safeWebsiteUrl(site);if(!site)return'';if(!href)return esc(site);return `<a class="smart-link" data-smart href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(t('tipWebsite'))}"><span class="link-text">${esc(site)}</span>${externalIcon('i-external')}</a>`};
 smartMobile=function(c,number=null){let n=number||val(c,'Mobile');if(!n)return'';return `<button class="smart-link muted-link" data-mobile="${esc(n)}" data-mobile-name="${esc(val(c,'Họ tên'))}" data-mobile-country="${esc(val(c,'Quốc gia'))}" title="${esc(t('tipMobile'))}"><span class="link-text">${esc(n)}</span>${externalIcon('i-message')}</button>`};
 smartLandline=function(c,number=null){let n=number||val(c,'Điện thoại bàn');if(!n)return'';let normalized=normalizePhone(n,val(c,'Quốc gia'));return `<a class="smart-link muted-link" data-smart href="tel:${esc(normalized||n.replace(/\s+/g,''))}" title="${esc(t('tipLandline'))}"><span class="link-text">${esc(n)}</span>${externalIcon('i-phone')}</a>`};
-smartAddress=function(c,address=null){let a=address||val(c,'Địa chỉ');let fallback=[val(c,'Thành phố'),val(c,'Quốc gia')].filter(Boolean).join(', ');let q=a||fallback;if(!q)return'';return `<a class="smart-link muted-link location-link" data-smart href="${googleMapsUrl(q)}" target="_blank" rel="noopener noreferrer" title="${esc(t('tipMaps'))}"><span class="link-text">${esc(a||fallback)}</span>${externalIcon('i-map')}</a>`};
+smartAddress=function(c,address=null){
+  let a=address||val(c,'Địa chỉ');
+  let rawCity=val(c,'Thành phố');
+  let rawCountry=val(c,'Quốc gia');
+  let trCity=translateCity(rawCity,currentLang);
+  let trCountry=translateCountry(rawCountry,currentLang);
+  let locText='';
+  if(a){
+    locText=translateAddress(a,currentLang);
+  }else{
+    locText=[trCity,trCountry].filter(Boolean).join(', ');
+  }
+  if(!locText)return'';
+  return `<a class="smart-link muted-link location-link" data-smart href="${googleMapsUrl(a||locText)}" target="_blank" rel="noopener noreferrer" title="${esc(t('tipMaps'))}"><span class="link-text">${esc(locText)}</span>${externalIcon('i-map')}</a>`;
+};
 
-contactRows=function(rows){if(!rows.length)return`<div class="empty"><b>${t('emptyResults')}</b>${t('emptyTry')}</div>`;return`<div class="tablewrap"><table><thead><tr><th>${t('tablePerson')}</th><th>${t('tableOrg')}</th><th>${t('tableRole')}</th><th>${t('tableContact')}</th><th>${t('tableLocation')}</th><th>${t('tableCards')}</th></tr></thead><tbody>${rows.map(c=>{let id=val(c,'Contact_ID'),cc=cardCount(id),em=val(c,'Email chính'),mob=val(c,'Mobile');return`<tr class="data-row" data-contact="${esc(id)}"><td><div class="person"><div class="avatar">${initials(val(c,'Họ tên'))}</div><div><b>${esc(val(c,'Họ tên'))}</b><div class="sub">${esc(id)} · ${esc(val(c,'Cấp bậc'))}</div></div></div></td><td><div class="company">${smartCompany(c)}</div><div class="sub">${esc(displayJobTitle(c))}</div></td><td>${rolePill(c)}</td><td><div class="contact-stack">${mob?`<div class="contactline"><svg class="icon" style="width:13px;height:13px;color:#99a2b0"><use href="#i-phone"/></svg>${smartMobile(c,mob)}${copyBtn(mob)}</div>`:''}${em?`<div class="contactline sub"><svg class="icon" style="width:13px;height:13px"><use href="#i-mail"/></svg>${smartEmail(em)}${copyBtn(em)}</div>`:''}</div></td><td>${smartAddress(c)}<div class="sub">${!val(c,'Địa chỉ')?esc(val(c,'Quốc gia')):''}</div></td><td><div class="cardcount"><span class="mini-card-stack"></span>${cc}${cc>1?pill(t('linked'),'orange'):''}</div></td></tr>`}).join('')}</tbody></table></div>`};
+contactRows=function(rows){
+  if(!rows.length)return`<div class="empty"><b>${t('emptyResults')}</b>${t('emptyTry')}</div>`;
+  return`<div class="tablewrap"><table><thead><tr><th>${t('tablePerson')}</th><th>${t('tableOrg')}</th><th>${t('tableRole')}</th><th>${t('tableContact')}</th><th>${t('tableLocation')}</th><th>${t('tableCards')}</th></tr></thead><tbody>${rows.map(c=>{
+    let id=val(c,'Contact_ID'),cc=cardCount(id),em=val(c,'Email chính'),mob=val(c,'Mobile');
+    let countryDisplay=translateCountry(val(c,'Quốc gia'),currentLang);
+    return`<tr class="data-row" data-contact="${esc(id)}"><td><div class="person"><div class="avatar">${initials(val(c,'Họ tên'))}</div><div><b>${esc(val(c,'Họ tên'))}</b><div class="sub">${esc(id)} · ${esc(val(c,'Cấp bậc'))}</div></div></div></td><td><div class="company">${smartCompany(c)}</div><div class="sub">${esc(displayJobTitle(c))}</div></td><td>${rolePill(c)}</td><td><div class="contact-stack">${mob?`<div class="contactline"><svg class="icon" style="width:13px;height:13px;color:#99a2b0"><use href="#i-phone"/></svg>${smartMobile(c,mob)}${copyBtn(mob)}</div>`:''}${em?`<div class="contactline sub"><svg class="icon" style="width:13px;height:13px"><use href="#i-mail"/></svg>${smartEmail(em)}${copyBtn(em)}</div>`:''}</div></td><td>${smartAddress(c)}<div class="sub">${!val(c,'Địa chỉ')?esc(countryDisplay):''}</div></td><td><div class="cardcount"><span class="mini-card-stack"></span>${cc}${cc>1?pill(t('linked'),'orange'):''}</div></td></tr>`
+  }).join('')}</tbody></table></div>`
+};
 
-contactGrid=function(rows){if(!rows.length)return`<div class="empty"><b>${t('emptyResults')}</b>${t('emptyTry')}</div>`;return`<div class="company-grid">${rows.map(c=>`<article class="company-card" data-contact="${esc(val(c,'Contact_ID'))}" style="cursor:pointer"><div class="company-top"><div class="person"><div class="avatar">${initials(val(c,'Họ tên'))}</div><div><b>${esc(val(c,'Họ tên'))}</b><div class="sub">${esc(displayJobTitle(c))}</div></div></div>${confidencePill(c)}</div><h3>${smartCompany(c)}</h3><p>${esc(val(c,'Ngành cấp 1'))}</p><div class="quick-link-row">${val(c,'Mobile')?smartMobile(c):''}${val(c,'Email chính')?smartEmail(val(c,'Email chính')):''}</div><div class="company-stats"><div class="company-stat"><b>${cardCount(val(c,'Contact_ID'))}</b><span>${t('companyCards')}</span></div><div class="company-stat"><b>${val(c,'Quốc gia')||'—'}</b><span>${t('country')}</span></div><div class="company-stat"><b>${roleBucket(val(c,'Vai trò CRM')).includes('Decision')?'DM':'—'}</b><span>${t('role')}</span></div></div></article>`).join('')}</div>`};
+contactGrid=function(rows){
+  if(!rows.length)return`<div class="empty"><b>${t('emptyResults')}</b>${t('emptyTry')}</div>`;
+  return`<div class="company-grid">${rows.map(c=>{
+    let countryDisplay=translateCountry(val(c,'Quốc gia'),currentLang);
+    return`<article class="company-card" data-contact="${esc(val(c,'Contact_ID'))}" style="cursor:pointer"><div class="company-top"><div class="person"><div class="avatar">${initials(val(c,'Họ tên'))}</div><div><b>${esc(val(c,'Họ tên'))}</b><div class="sub">${esc(displayJobTitle(c))}</div></div></div>${confidencePill(c)}</div><h3>${smartCompany(c)}</h3><p>${esc(val(c,'Ngành cấp 1'))}</p><div class="quick-link-row">${val(c,'Mobile')?smartMobile(c):''}${val(c,'Email chính')?smartEmail(val(c,'Email chính')):''}</div><div class="company-stats"><div class="company-stat"><b>${cardCount(val(c,'Contact_ID'))}</b><span>${t('companyCards')}</span></div><div class="company-stat"><b>${countryDisplay||'—'}</b><span>${t('country')}</span></div><div class="company-stat"><b>${roleBucket(val(c,'Vai trò CRM')).includes('Decision')?'DM':'—'}</b><span>${t('role')}</span></div></div></article>`
+  }).join('')}</div>`
+};
 
 let activeDrawerContactId=null;
 function localizedDrawerSection(c,title,items){
@@ -1571,6 +1711,13 @@ applyI18n=function(){
   const more=$('#moreBtn');if(more)more.setAttribute('aria-label',t('moreActions'));
   const srcImg=$('#sourceImage');if(srcImg)srcImg.alt=t('sourceTitle');
   if($('#drawer').classList.contains('open')&&activeDrawerContactId)showContact(activeDrawerContactId);
+  const lockSub=$('#lockSubtitle');
+  if(lockSub) lockSub.innerHTML=currentLang==='en'?'CPG Internal Namecard Directory.<br/>Enter 4-digit PIN to unlock.':'Thư viện danh bạ danh thiếp nội bộ CPG.<br/>Nhập mã PIN 4 ký tự để mở khóa.';
+  const unlockBtn=$('#unlockBtn span');
+  if(unlockBtn) unlockBtn.textContent=currentLang==='en'?'Unlock Directory':'Mở khóa thư viện';
+  const lockBtn=$('#lockBtn');
+  if(lockBtn) lockBtn.textContent=currentLang==='en'?'🔒 Lock':'🔒 Khóa';
+  updateFilters();
 };
 
 
