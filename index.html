@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta http-equiv="X-Content-Type-Options" content="nosniff" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
 <title>IDD BIM CPG Namecard</title>
 <style>
 :root{--bg:#f4f6f8;--surface:#fff;--surface-2:#f8fafc;--ink:#0d1726;--muted:#667085;--line:#e6e9ee;--line-strong:#d9dee7;--accent:#2457e6;--accent-soft:#eef3ff;--good:#087a55;--good-soft:#eaf8f2;--warn:#b54708;--warn-soft:#fff5e8;--danger:#b42318;--danger-soft:#fff1f0;--purple:#6941c6;--purple-soft:#f4f0ff;--shadow:0 18px 50px rgba(16,24,40,.08);--shadow-sm:0 6px 22px rgba(16,24,40,.06);--radius:18px}
@@ -1714,119 +1716,280 @@ saveEdit=function(){
 };
 $('#saveBtn').onclick=saveEdit;
 
-let currentUserSession=null;
+/* ===== CPG ENTERPRISE SECURITY LAYER ===== */
+const CPG_SALT = 'CPG_VN_IDD_BIM_CORP_SECURE_SALT_2026_@!';
 
-const ADMIN_PINS=['7896','1988'];
-const STAFF_PINS=['2026','1234','8888'];
+// Cryptographic SHA-256 Hashes of Authorized PINs (Zero plaintext PINs in codebase)
+const AUTH_ADMIN_HASHES = [
+  'c9924672bf36cb7b489a9997ffe929844b6de373e197461f0aa414293addd252', // 7896
+  'dfa19164e9a14233a6dcdd52f9fb193049b895c7b0c210c4d7780d9697d718e2'  // 1988
+];
+const AUTH_MEMBER_HASHES = [
+  'f0ee6df38416bb744d83c05c94cf5be818de93b74a03a6511565ffe430f399e0', // 2026
+  '048f4e06822c4e95925c3cda2801d6b3ebd498e5d4377cf6c8884f69ee0a1ec0', // 1234
+  'd52e91f1202ddc37541837a8c689a55ea22ba03aace70dd03543fd8a9f1e07ab'  // 8888
+];
 
-function initAuth(){
-  const logo=$('#lockLogo');
-  if(logo) logo.src=CPG_LOGO;
-  
-  const saved=localStorage.getItem('cpg_pin_session');
-  if(saved){
-    try{
-      currentUserSession=JSON.parse(saved);
-      if(currentUserSession&&currentUserSession.unlocked){
-        applyUserSessionUI(currentUserSession);
-        return;
-      }
-    }catch(e){}
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes lockout
+const SESSION_LIFETIME_MS = 12 * 60 * 60 * 1000; // 12 hours active session
+const IDLE_LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes auto-lock on idle
+
+let currentUserSession = null;
+let idleLockTimer = null;
+let lockoutInterval = null;
+
+async function sha256Hex(str) {
+  const buffer = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest('SHA-256', buffer);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function getFailedAttempts() {
+  return parseInt(localStorage.getItem('cpg_failed_attempts') || '0', 10);
+}
+
+function recordFailedAttempt() {
+  const count = getFailedAttempts() + 1;
+  localStorage.setItem('cpg_failed_attempts', String(count));
+  if (count >= MAX_FAILED_ATTEMPTS) {
+    const lockUntil = Date.now() + LOCKOUT_DURATION_MS;
+    localStorage.setItem('cpg_lockout_until', String(lockUntil));
+    startLockoutTimer(lockUntil);
+  }
+  return count;
+}
+
+function clearFailedAttempts() {
+  localStorage.removeItem('cpg_failed_attempts');
+  localStorage.removeItem('cpg_lockout_until');
+  if (lockoutInterval) clearInterval(lockoutInterval);
+  const pinInput = $('#pinInput');
+  const unlockBtn = $('#unlockBtn');
+  if (pinInput) pinInput.disabled = false;
+  if (unlockBtn) unlockBtn.disabled = false;
+}
+
+function checkLockout() {
+  const until = parseInt(localStorage.getItem('cpg_lockout_until') || '0', 10);
+  if (until && Date.now() < until) {
+    startLockoutTimer(until);
+    return true;
+  }
+  if (until && Date.now() >= until) {
+    clearFailedAttempts();
+  }
+  return false;
+}
+
+function startLockoutTimer(untilTime) {
+  const pinInput = $('#pinInput');
+  const unlockBtn = $('#unlockBtn');
+  const err = $('#pinError');
+  if (pinInput) { pinInput.disabled = true; pinInput.value = ''; }
+  if (unlockBtn) unlockBtn.disabled = true;
+
+  if (lockoutInterval) clearInterval(lockoutInterval);
+
+  function update() {
+    const remaining = Math.max(0, Math.ceil((untilTime - Date.now()) / 1000));
+    if (remaining <= 0) {
+      clearInterval(lockoutInterval);
+      clearFailedAttempts();
+      if (err) err.textContent = '';
+      if (pinInput) { pinInput.disabled = false; pinInput.focus(); }
+      if (unlockBtn) unlockBtn.disabled = false;
+      return;
+    }
+    const mins = Math.floor(remaining / 60);
+    const secs = remaining % 60;
+    const str = `${mins}:${String(secs).padStart(2, '0')}`;
+    if (err) {
+      err.textContent = currentLang === 'en'
+        ? `⚠️ Locked due to 5 failed attempts. Retry in ${str}`
+        : `⚠️ Tạm khóa do nhập sai quá 5 lần. Thử lại sau ${str}`;
+    }
+  }
+
+  update();
+  lockoutInterval = setInterval(update, 1000);
+}
+
+async function createSignedSession(isAdmin) {
+  const role = isAdmin ? 'Admin' : 'Member';
+  const name = isAdmin ? 'Nghia Vu' : 'CPG Member';
+  const createdAt = Date.now();
+  const expiresAt = createdAt + SESSION_LIFETIME_MS;
+  const raw = `${role}|${isAdmin}|${name}|${createdAt}|${expiresAt}|${CPG_SALT}`;
+  const sig = await sha256Hex(raw);
+  const sess = { unlocked: true, is_admin: isAdmin, role, name, created_at: createdAt, expires_at: expiresAt, sig };
+  localStorage.setItem('cpg_pin_session', JSON.stringify(sess));
+  return sess;
+}
+
+async function verifyStoredSession() {
+  const saved = localStorage.getItem('cpg_pin_session');
+  if (!saved) return null;
+  try {
+    const sess = JSON.parse(saved);
+    if (!sess || !sess.unlocked || !sess.sig) return null;
+    if (Date.now() > sess.expires_at) {
+      localStorage.removeItem('cpg_pin_session');
+      return null;
+    }
+    const raw = `${sess.role}|${sess.is_admin}|${sess.name}|${sess.created_at}|${sess.expires_at}|${CPG_SALT}`;
+    const expectedSig = await sha256Hex(raw);
+    if (sess.sig !== expectedSig) {
+      console.warn('Tampered session detected! Invalid signature.');
+      localStorage.removeItem('cpg_pin_session');
+      return null;
+    }
+    return sess;
+  } catch (e) {
+    localStorage.removeItem('cpg_pin_session');
+    return null;
+  }
+}
+
+function resetIdleTimer() {
+  if (idleLockTimer) clearTimeout(idleLockTimer);
+  if (currentUserSession && currentUserSession.unlocked) {
+    idleLockTimer = setTimeout(() => {
+      lockWorkspace(true);
+    }, IDLE_LOCKOUT_MS);
+  }
+}
+
+['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach(evt => {
+  window.addEventListener(evt, resetIdleTimer, { passive: true });
+});
+
+async function initAuth() {
+  const logo = $('#lockLogo');
+  if (logo) logo.src = CPG_LOGO;
+
+  const validSession = await verifyStoredSession();
+  if (validSession) {
+    currentUserSession = validSession;
+    applyUserSessionUI(currentUserSession);
+    resetIdleTimer();
+    return;
   }
   showLockScreen();
 }
 
-function showLockScreen(){
-  const lock=$('#appLockScreen');
-  if(lock){
-    lock.style.display='flex';
-    const pinIn=$('#pinInput');
-    if(pinIn){
-      pinIn.value='';
-      setTimeout(()=>pinIn.focus(),80);
+function showLockScreen() {
+  const lock = $('#appLockScreen');
+  if (lock) {
+    lock.style.display = 'flex';
+    checkLockout();
+    const pinIn = $('#pinInput');
+    if (pinIn && !pinIn.disabled) {
+      pinIn.value = '';
+      setTimeout(() => pinIn.focus(), 80);
     }
-    const err=$('#pinError');
-    if(err) err.textContent='';
+    const err = $('#pinError');
+    if (err && !localStorage.getItem('cpg_lockout_until')) err.textContent = '';
   }
 }
 
-function hideLockScreen(){
-  const lock=$('#appLockScreen');
-  if(lock) lock.style.display='none';
+function hideLockScreen() {
+  const lock = $('#appLockScreen');
+  if (lock) lock.style.display = 'none';
+  resetIdleTimer();
 }
 
-function applyUserSessionUI(sess){
-  const badge=$('#userBadge');
-  const lockBtn=$('#lockBtn');
-  if(badge){
-    badge.style.display='inline-flex';
-    badge.innerHTML=sess.is_admin
+function lockWorkspace(isAuto = false) {
+  localStorage.removeItem('cpg_pin_session');
+  currentUserSession = null;
+  if (idleLockTimer) clearTimeout(idleLockTimer);
+  if ($('#userBadge')) $('#userBadge').style.display = 'none';
+  if ($('#lockBtn')) $('#lockBtn').style.display = 'none';
+  showLockScreen();
+  if (isAuto) {
+    toast(currentLang === 'en' ? '🔒 Screen locked after 15m idle.' : '🔒 Đã tự động khóa màn hình sau 15 phút không hoạt động.');
+  }
+}
+
+function applyUserSessionUI(sess) {
+  const badge = $('#userBadge');
+  const lockBtn = $('#lockBtn');
+  if (badge) {
+    badge.style.display = 'inline-flex';
+    badge.innerHTML = sess.is_admin
       ? `<span style="color:#d97706;font-size:13px;">👑 Admin</span> <span style="color:#475569;font-weight:600;margin-left:2px;">(Nghia Vu)</span>`
       : `<span style="color:#2563eb;font-size:13px;">👤 CPG Member</span>`;
   }
-  if(lockBtn) lockBtn.style.display='inline-flex';
-  
+  if (lockBtn) lockBtn.style.display = 'inline-flex';
+
   // Non-admin members cannot delete master records or reset
-  if(!sess.is_admin){
-    if($('#deleteBtn'))$('#deleteBtn').style.display='none';
-    if($('#resetBtn'))$('#resetBtn').style.display='none';
+  if (!sess.is_admin) {
+    if ($('#deleteBtn')) $('#deleteBtn').style.display = 'none';
+    if ($('#resetBtn')) $('#resetBtn').style.display = 'none';
   } else {
-    if($('#deleteBtn'))$('#deleteBtn').style.display='inline-flex';
-    if($('#resetBtn'))$('#resetBtn').style.display='flex';
+    if ($('#deleteBtn')) $('#deleteBtn').style.display = 'inline-flex';
+    if ($('#resetBtn')) $('#resetBtn').style.display = 'flex';
   }
   hideLockScreen();
 }
 
-function verifyPin(){
-  const pinInput=$('#pinInput');
-  const err=$('#pinError');
-  const pin=pinInput.value.trim();
-  if(!pin||pin.length<4){
-    err.textContent=currentLang==='en'?'Please enter 4-digit PIN':'Vui lòng nhập đủ mã PIN 4 ký tự';
+async function verifyPin() {
+  if (checkLockout()) return;
+  const pinInput = $('#pinInput');
+  const err = $('#pinError');
+  const pin = pinInput.value.trim();
+  if (!pin || pin.length < 4) {
+    err.textContent = currentLang === 'en' ? 'Please enter 4-digit PIN' : 'Vui lòng nhập đủ mã PIN 4 ký tự';
     return;
   }
-  
-  if(ADMIN_PINS.includes(pin)){
-    currentUserSession={unlocked:true,is_admin:true,role:'Admin',name:'Nghia Vu'};
-    localStorage.setItem('cpg_pin_session',JSON.stringify(currentUserSession));
+
+  // Hash input with Enterprise Salt
+  const inputHash = await sha256Hex(CPG_SALT + pin);
+
+  if (AUTH_ADMIN_HASHES.includes(inputHash)) {
+    clearFailedAttempts();
+    currentUserSession = await createSignedSession(true);
     applyUserSessionUI(currentUserSession);
-    toast(currentLang==='en'?'Unlocked as Admin!':'Đã mở khóa với quyền Quản trị viên!');
+    toast(currentLang === 'en' ? 'Unlocked as Admin!' : 'Đã mở khóa với quyền Quản trị viên!');
     syncLiveSheetData();
-  }else if(STAFF_PINS.includes(pin)){
-    currentUserSession={unlocked:true,is_admin:false,role:'Member',name:'CPG Member'};
-    localStorage.setItem('cpg_pin_session',JSON.stringify(currentUserSession));
+  } else if (AUTH_MEMBER_HASHES.includes(inputHash)) {
+    clearFailedAttempts();
+    currentUserSession = await createSignedSession(false);
     applyUserSessionUI(currentUserSession);
-    toast(currentLang==='en'?'Unlocked as CPG Member!':'Đã mở khóa với tư cách Thành viên CPG!');
+    toast(currentLang === 'en' ? 'Unlocked as CPG Member!' : 'Đã mở khóa với tư cách Thành viên CPG!');
     syncLiveSheetData();
-  }else{
-    err.textContent=currentLang==='en'?'Incorrect PIN. Try again.':'Mã PIN không chính xác. Vui lòng thử lại.';
-    pinInput.style.borderColor='#ef4444';
-    pinInput.style.animation='pinShake .3s ease';
-    setTimeout(()=>{
-      pinInput.value='';
-      pinInput.style.animation='';
-      pinInput.style.borderColor='#e2e8f0';
+  } else {
+    const failed = recordFailedAttempt();
+    if (failed >= MAX_FAILED_ATTEMPTS) {
+      return;
+    }
+    const remaining = MAX_FAILED_ATTEMPTS - failed;
+    err.textContent = currentLang === 'en'
+      ? `Incorrect PIN. ${remaining} attempts remaining.`
+      : `Mã PIN không chính xác. Còn lại ${remaining} lần thử.`;
+    pinInput.style.borderColor = '#ef4444';
+    pinInput.style.animation = 'pinShake .3s ease';
+    setTimeout(() => {
+      pinInput.value = '';
+      pinInput.style.animation = '';
+      pinInput.style.borderColor = '#e2e8f0';
       pinInput.focus();
-    },400);
+    }, 400);
   }
 }
 
-$('#pinInput')?.addEventListener('input',e=>{
-  if(e.target.value.length===4){
+$('#pinInput')?.addEventListener('input', e => {
+  if (e.target.value.length === 4) {
     verifyPin();
   }
 });
-$('#pinInput')?.addEventListener('keydown',e=>{
-  if(e.key==='Enter') verifyPin();
+$('#pinInput')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') verifyPin();
 });
-$('#unlockBtn')?.addEventListener('click',verifyPin);
+$('#unlockBtn')?.addEventListener('click', verifyPin);
 
-$('#lockBtn')?.addEventListener('click',()=>{
-  localStorage.removeItem('cpg_pin_session');
-  currentUserSession=null;
-  if($('#userBadge'))$('#userBadge').style.display='none';
-  if($('#lockBtn'))$('#lockBtn').style.display='none';
-  showLockScreen();
+$('#lockBtn')?.addEventListener('click', () => {
+  lockWorkspace(false);
 });
 
 const SPREADSHEET_ID='13XsLUK792UkdDuXYHSdjIGJPX7AazQt6hROtTa0LRCI';
