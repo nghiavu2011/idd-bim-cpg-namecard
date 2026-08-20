@@ -2,9 +2,14 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta http-equiv="X-Content-Type-Options" content="nosniff" />
 <meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="theme-color" content="#ffffff" />
+<link rel="manifest" href="manifest.json" />
 <title>IDD BIM CPG Namecard</title>
 <style>
 :root{--bg:#f4f6f8;--surface:#fff;--surface-2:#f8fafc;--ink:#0d1726;--muted:#667085;--line:#e6e9ee;--line-strong:#d9dee7;--accent:#2457e6;--accent-soft:#eef3ff;--good:#087a55;--good-soft:#eaf8f2;--warn:#b54708;--warn-soft:#fff5e8;--danger:#b42318;--danger-soft:#fff1f0;--purple:#6941c6;--purple-soft:#f4f0ff;--shadow:0 18px 50px rgba(16,24,40,.08);--shadow-sm:0 6px 22px rgba(16,24,40,.06);--radius:18px}
@@ -934,7 +939,47 @@ body{font-size:14px;line-height:1.45}
     display: none !important;
   }
 
-  /* Executive iOS-style Bottom Navigation Bar */
+  /* Horizontal Filter Chips Bar */
+  .mobile-chips-bar {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 2px 2px 6px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .mobile-chips-bar::-webkit-scrollbar {
+    display: none;
+  }
+  .chip-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 11.5px;
+    font-weight: 650;
+    white-space: nowrap;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all .2s ease;
+  }
+  .chip-btn:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+  }
+  .chip-btn.active {
+    background: #fff3d9;
+    border-color: #f4a61c;
+    color: #b45309;
+    font-weight: 800;
+    box-shadow: 0 2px 8px rgba(244, 166, 28, 0.2);
+  }
+
+  /* Executive iOS-style Bottom Navigation Bar with Center FAB */
   .mobile-bottom-nav {
     display: flex !important;
     position: fixed !important;
@@ -948,7 +993,7 @@ body{font-size:14px;line-height:1.45}
     border-top: 1px solid rgba(216, 221, 230, 0.8) !important;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
     z-index: 999 !important;
-    padding: 6px 12px 8px !important;
+    padding: 6px 8px 8px !important;
     align-items: center !important;
     justify-content: space-around !important;
   }
@@ -962,7 +1007,7 @@ body{font-size:14px;line-height:1.45}
     border: 0 !important;
     background: transparent !important;
     color: #64748b !important;
-    font-size: 11px !important;
+    font-size: 10.5px !important;
     font-weight: 650 !important;
     position: relative !important;
     padding: 4px 0 !important;
@@ -984,10 +1029,10 @@ body{font-size:14px;line-height:1.45}
   .mobile-nav-count {
     position: absolute !important;
     top: 0 !important;
-    right: 18% !important;
+    right: 14% !important;
     background: #f4a61c !important;
     color: #fff !important;
-    font-size: 9.5px !important;
+    font-size: 9px !important;
     font-weight: 800 !important;
     padding: 1px 5px !important;
     border-radius: 999px !important;
@@ -998,6 +1043,40 @@ body{font-size:14px;line-height:1.45}
   .mobile-nav-tab:not(.active) .mobile-nav-count {
     background: #cbd5e1 !important;
     color: #334155 !important;
+  }
+
+  .mobile-nav-fab {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--brand-red), var(--brand-orange));
+    color: #fff;
+    border: 3px solid #fff;
+    box-shadow: 0 6px 20px rgba(244, 166, 28, 0.45);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: -20px;
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .mobile-nav-fab:active {
+    transform: scale(0.92);
+  }
+  .mobile-nav-fab .icon {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2.2;
+  }
+  .mobile-nav-fab span {
+    font-size: 7.5px;
+    font-weight: 850;
+    margin-top: 1px;
+    text-transform: uppercase;
+    letter-spacing: .02em;
   }
 
   /* Help Bubble on mobile above bottom nav */
@@ -1062,6 +1141,19 @@ body{font-size:14px;line-height:1.45}
   <section class="workspace">
     <div class="toolbar">
       <div class="searchbox"><svg class="icon"><use href="#i-search"/></svg><input id="search" placeholder="Tìm tên, công ty, email, số điện thoại..."/><kbd>/</kbd></div>
+      <div class="mobile-chips-bar" id="mobileChipsBar">
+        <button class="chip-btn active" data-chip-type="all" type="button">🏷️ Tất cả</button>
+        <button class="chip-btn" data-chip-type="role" data-chip-val="Decision Maker" type="button">👑 Decision Maker</button>
+        <button class="chip-btn" data-chip-type="role" data-chip-val="Technical Influencer" type="button">⚡ Tech Influencer</button>
+        <button class="chip-btn" data-chip-type="industry" data-chip-val="Real Estate / Property Development" type="button">🏢 BĐS / CDT</button>
+        <button class="chip-btn" data-chip-type="industry" data-chip-val="Technology / Software / Engineering" type="button">💻 Công nghệ</button>
+        <button class="chip-btn" data-chip-type="industry" data-chip-val="Lighting / Building Technology" type="button">💡 Chiếu sáng / MEP</button>
+        <button class="chip-btn" data-chip-type="industry" data-chip-val="Construction / Engineering / Research" type="button">🏗️ Xây dựng</button>
+        <button class="chip-btn" data-chip-type="country" data-chip-val="Vietnam" type="button">🇻🇳 Việt Nam</button>
+        <button class="chip-btn" data-chip-type="country" data-chip-val="Japan" type="button">🇯🇵 Nhật Bản</button>
+        <button class="chip-btn" data-chip-type="country" data-chip-val="Malaysia" type="button">🇲🇾 Malaysia</button>
+        <button class="chip-btn" data-chip-type="country" data-chip-val="Singapore" type="button">🇸🇬 Singapore</button>
+      </div>
       <select id="industry" class="select"><option value="">Tất cả ngành</option></select>
       <select id="role" class="select"><option value="">Tất cả vai trò</option></select>
       <select id="country" class="select"><option value="">Tất cả quốc gia</option></select>
@@ -1073,12 +1165,16 @@ body{font-size:14px;line-height:1.45}
   </section>
 </main>
 
-<!-- Modern iOS-style Mobile Bottom Navigation Bar -->
+<!-- Modern iOS-style Mobile Bottom Navigation Bar with Center FAB -->
 <nav class="mobile-bottom-nav" id="mobileBottomNav">
   <button class="mobile-nav-tab active" data-view="contacts" type="button">
     <svg class="icon"><use href="#i-users"/></svg>
     <span>Liên hệ</span>
     <span class="mobile-nav-count" id="mContacts">17</span>
+  </button>
+  <button class="mobile-nav-fab" id="mScanFab" type="button" title="Quét Namecard AI">
+    <svg class="icon"><use href="#i-card"/></svg>
+    <span>Quét AI</span>
   </button>
   <button class="mobile-nav-tab" data-view="cards" type="button">
     <svg class="icon"><use href="#i-card"/></svg>
@@ -1130,14 +1226,24 @@ body{font-size:14px;line-height:1.45}
     <!-- WIZARD STEP 1: SCAN & OCR INTAKE -->
     <div id="wizardStep1" class="wizard-pane">
       <div class="scanner-panel" id="scannerPanel">
-        <div class="scan-drop" id="scanDrop" tabindex="0">
+        <div class="scan-drop scan-viewfinder" id="scanDrop" tabindex="0">
           <input id="scanFile" type="file" accept="image/*" hidden />
+          <input id="scanCamera" type="file" accept="image/*" capture="environment" hidden />
           <div class="scan-icon"><svg class="icon"><use href="#i-card"/></svg></div>
           <div class="scan-copy">
-            <b id="scanTitle">Tải lên · Dán · Thả ảnh namecard</b>
-            <span id="scanHint">AI đọc siêu tốc, tự động lọc trùng và lưu vào Sheet + Drive.</span>
+            <b id="scanTitle">Quét & Nhận diện Namecard</b>
+            <span id="scanHint">Chụp camera trực tiếp hoặc chọn ảnh từ máy để AI bóc tách.</span>
           </div>
-          <button class="btn small" type="button" id="scanBrowse">Chọn ảnh</button>
+          <div class="scan-btn-group" style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;justify-content:center;">
+            <button class="btn primary small" type="button" id="scanCameraBtn" style="background:#0f172a;gap:6px;">
+              <svg class="icon" style="width:14px;height:14px;"><use href="#i-search"/></svg>
+              <span id="scanCameraText">📸 Chụp camera</span>
+            </button>
+            <button class="btn small" type="button" id="scanBrowse" style="gap:6px;">
+              <svg class="icon" style="width:14px;height:14px;"><use href="#i-download"/></svg>
+              <span id="scanBrowseText">📁 Chọn từ thư viện</span>
+            </button>
+          </div>
         </div>
         <div class="scan-result" id="scanResult" hidden>
           <div class="scan-preview"><img id="scanPreview" alt="Namecard preview" /></div>
@@ -1194,12 +1300,12 @@ body{font-size:14px;line-height:1.45}
       </div>
 
       <div class="formgrid">
-        <div class="field"><label>Họ tên</label><input id="fName" /></div><div class="field"><label>Công ty / tổ chức</label><input id="fCompany" /></div>
-        <div class="field"><label>Chức danh</label><input id="fTitle" /></div><div class="field"><label>Cấp bậc</label><input id="fLevel" /></div>
-        <div class="field"><label>Mobile</label><input id="fMobile" /></div><div class="field"><label>Email</label><input id="fEmail" /></div>
-        <div class="field"><label>Website</label><input id="fWebsite" placeholder="www.company.com" /></div><div class="field"><label>Địa chỉ</label><input id="fAddress" /></div>
+        <div class="field"><label>Họ tên</label><input id="fName" autocomplete="name" /></div><div class="field"><label>Công ty / tổ chức</label><input id="fCompany" autocomplete="organization" /></div>
+        <div class="field"><label>Chức danh</label><input id="fTitle" autocomplete="organization-title" /></div><div class="field"><label>Cấp bậc</label><input id="fLevel" /></div>
+        <div class="field"><label>Mobile</label><input id="fMobile" type="tel" inputmode="tel" autocomplete="tel" placeholder="090..." /></div><div class="field"><label>Email</label><input id="fEmail" type="email" inputmode="email" autocomplete="email" placeholder="name@company.com" /></div>
+        <div class="field"><label>Website</label><input id="fWebsite" type="url" inputmode="url" autocomplete="url" placeholder="https://..." /></div><div class="field"><label>Địa chỉ</label><input id="fAddress" autocomplete="street-address" /></div>
         <div class="field"><label>Ngành</label><input id="fIndustry" /></div><div class="field"><label>Vai trò CRM</label><input id="fRole" /></div>
-        <div class="field"><label>Quốc gia</label><input id="fCountry" /></div><div class="field"><label>Thành phố</label><input id="fCity" /></div>
+        <div class="field"><label>Quốc gia</label><input id="fCountry" autocomplete="country-name" /></div><div class="field"><label>Thành phố</label><input id="fCity" autocomplete="address-level2" /></div>
         <div class="field"><label>Độ tin cậy</label><select id="fConfidence"><option>High</option><option>Medium</option><option>Low</option></select></div><div class="field"><label>Nguồn card</label><input id="fSource" placeholder="VD: IMG3-R1C1" /></div>
         <div class="field full"><label>Ghi chú kiểm tra</label><textarea id="fNote"></textarea></div>
       </div>
@@ -1761,10 +1867,17 @@ renderContacts = function(){ let rows=currentFilteredContacts(); $('#content').i
 renderCards = function(){ let q=norm($('#search').value); let allowed=new Set(currentFilteredContacts().map(c=>val(c,'Contact_ID'))); let rows=PHYSICAL_CARDS.filter(c=>allowed.has(c.Contact_ID)&&(!q||norm([c.Name,c.Company,c.Title,c.Source,c.Card_ID].join(' ')).includes(q))); $('#content').innerHTML=rows.length?`<div class="cards-grid">${rows.map(c=>`<article class="card-tile" data-card="${esc(c.Card_ID)}" data-contact="${esc(c.Contact_ID)}"><div class="card-image-wrap"><img src="${c.Image}" alt="${esc(c.Name)}"/><span class="source-badge">${esc(c.Source)}</span>${c.Duplicate?`<span class="duplicate-badge">DUPLICATE</span>`:''}</div><div class="card-meta"><b>${esc(c.Name)}</b><div class="company"><a class="smart-link company-link" data-smart href="${googleSearchUrl(c.Company)}" target="_blank" rel="noopener noreferrer" title="Google"><span class="link-text">${esc(c.Company)}</span>${externalIcon('i-search')}</a></div><div class="sub">${esc(c.Title)}</div><div class="card-foot"><span>${esc(c.Card_ID)}</span><span>${c.Duplicate_Count>1?t('cardsToContact',{count:c.Duplicate_Count}):t('uniqueCard')}</span></div></div></article>`).join('')}</div>`:`<div class="empty"><b>${t('noCardMatch')}</b>${t('noCardTry')}</div>`; $('#resultMeta').textContent=t('resultCards',{shown:rows.length,total:PHYSICAL_CARDS.length}); };
 renderCompanies = function(){ let all=companies(),q=norm($('#search').value); let rows=all.filter(x=>!q||norm([x.name,x.short,x.industry,translateCountry(x.country,currentLang),translateCity(x.city,currentLang),...x.contacts.map(c=>c['Họ tên'])].join(' ')).includes(q)); $('#content').innerHTML=rows.length?`<div class="company-grid">${rows.map(x=>`<article class="company-card"><div class="company-top"><div class="company-logo">${initials(x.short||x.name)}</div>${x.decision?pill(`${x.decision} Decision Maker`,'blue'):''}</div><h3><a class="company-search" data-smart href="${googleSearchUrl(x.name)}" target="_blank" rel="noopener noreferrer" title="Google">${esc(x.short||x.name)} ${externalIcon('i-search')}</a></h3><p>${esc(x.name)}</p><p style="margin-top:6px">${esc(x.industry)} · ${esc([translateCity(x.city,currentLang),translateCountry(x.country,currentLang)].filter(Boolean).join(', '))}</p><div class="company-stats"><div class="company-stat"><b>${x.contacts.length}</b><span>${t('companyContacts')}</span></div><div class="company-stat"><b>${x.decision}</b><span>${t('companyDecision')}</span></div><div class="company-stat"><b>${x.contacts.reduce((a,c)=>a+cardCount(c.Contact_ID),0)}</b><span>${t('companyCards')}</span></div></div><div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">${x.contacts.map(c=>`<button class="pill" data-contact="${esc(c.Contact_ID)}" style="border:0;cursor:pointer">${esc(c['Họ tên'])}</button>`).join('')}</div></article>`).join('')}</div>`:`<div class="empty"><b>${t('noCompanies')}</b>${t('emptyTry')}</div>`; $('#resultMeta').textContent=t('resultCompanies',{count:rows.length}); };
 renderReview = function(){ let uncertain=reviewContacts(); let dups=contacts.filter(c=>cardCount(c.Contact_ID)>1); $('#content').innerHTML=`<div class="review-wrap"><div class="review-title"><h3>${t('reviewDataTitle')}</h3><span>${t('reviewContactCount',{count:uncertain.length})}</span></div><div class="review-list">${uncertain.length?uncertain.map(c=>`<div class="review-item"><div><b>${esc(c['Họ tên'])} · ${esc(c['Tên ngắn'])}</b><p>${esc(c['Ghi chú kiểm tra']||'')}</p></div><button class="btn small" data-contact="${esc(c.Contact_ID)}">${t('openProfile')}</button></div>`).join(''):`<div class="review-item"><div><b>${t('reviewNone')}</b><p>${t('reviewAllHigh')}</p></div></div>`}</div><div class="review-title"><h3>${t('dupGroups')}</h3><span>${t('dupGroupMeta',{contacts:dups.length,cards:duplicateCardCount()})}</span></div><div class="review-list">${dups.map(c=>`<div class="review-item"><div><b>${esc(c['Họ tên'])} · ${esc(c['Tên ngắn'])}</b><p>${t('dupLinked',{count:cardCount(c.Contact_ID),source:esc(c['Nguồn card'])})}</p></div><button class="btn small" data-contact="${esc(c.Contact_ID)}">${t('viewCards',{count:cardCount(c.Contact_ID)})}</button></div>`).join('')}</div></div>`; $('#resultMeta').textContent=t('resultReview',{need:uncertain.length,dup:dups.length}); };
-openMobileActions = function(number,name='',country=''){ let normalized=normalizePhone(number,country),digits=normalized.replace(/\D/g,''); $('#mobileActionNumber').textContent=number; $('#mobileActionName').textContent=[name,translateCountry(country,currentLang)].filter(Boolean).join(' · ')||t('chooseChannel'); let call=normalized||String(number).replace(/\s+/g,''); let actions=[{name:t('call'),sub:t('callSub'),badge:'TEL',href:`tel:${call}`},{name:t('sms'),sub:t('smsSub'),badge:'SMS',href:`sms:${call}`},{name:t('zalo'),sub:t('zaloSub'),badge:'ZA',href:`https://zalo.me/${digits}`,blank:true},{name:t('wa'),sub:t('waSub'),badge:'WA',href:`https://wa.me/${digits}`,blank:true},{name:t('viber'),sub:t('viberSub'),badge:'VI',href:`viber://chat?number=${encodeURIComponent(normalized)}`}]; $('#mobileActions').innerHTML=actions.map(a=>`<a class="channel-btn" data-smart href="${a.href}" ${a.blank?'target="_blank" rel="noopener noreferrer"':''}><span class="channel-badge">${a.badge}</span><span><b>${a.name}</b><small>${a.sub}</small></span></a>`).join('')+`<button class="channel-btn" data-copy="${esc(number)}"><span class="channel-badge">CP</span><span><b>${t('copy')}</b><small>${t('copySub')}</small></span></button>`; $('#mobileModal').classList.add('show'); $('#overlay').classList.add('show'); };
+openMobileActions = function(number,name='',country=''){ let normalized=normalizePhone(number,country),digits=normalized.replace(/\D/g,''); $('#mobileActionNumber').textContent=number; $('#mobileActionName').textContent=[name,translateCountry(country,currentLang)].filter(Boolean).join(' · ')||t('chooseChannel'); let call=normalized||String(number).replace(/\s+/g,''); let actions=[{name:t('call'),sub:t('callSub'),badge:'TEL',href:`tel:${call}`},{name:t('sms'),sub:t('smsSub'),badge:'SMS',href:`sms:${call}`},{name:t('zalo'),sub:t('zaloSub'),badge:'ZA',href:`https://zalo.me/${digits}`,blank:true},{name:t('wa'),sub:t('waSub'),badge:'WA',href:`https://wa.me/${digits}`,blank:true},{name:t('viber'),sub:t('viberSub'),badge:'VI',href:`viber://chat?number=${encodeURIComponent(normalized)}`}]; $('#mobileActions').innerHTML=actions.map(a=>`<a class="channel-btn" data-smart href="${a.href}" ${a.blank?'target="_blank" rel="noopener noreferrer"':''}><span class="channel-badge">${a.badge}</span><span><b>${a.name}</b><small>${a.sub}</small></span></a>`).join('')+`<button class="channel-btn" data-vcard-num="${esc(number)}"><span class="channel-badge" style="background:#e0f2fe;color:#0369a1;font-weight:800;">VCF</span><span><b>${currentLang==='en'?'Save to Contacts':'Lưu vào Danh bạ'}</b><small>${currentLang==='en'?'Download .vcf contact card':'Tải file .vcf lưu vào máy'}</small></span></button>`+`<button class="channel-btn" data-copy="${esc(number)}"><span class="channel-badge">CP</span><span><b>${t('copy')}</b><small>${t('copySub')}</small></span></button>`; $('#mobileModal').classList.add('show'); $('#overlay').classList.add('show'); };
 // Rebind elements whose handlers depend on text feedback
 $('#saveBtn').onclick = saveEdit; $('#deleteBtn').onclick = deleteContact; $('#resetBtn').onclick=()=>{ if(confirm(t('confirmReset'))){ contacts=structuredClone(ORIGINAL_CONTACTS); persist(); render(); toast(t('toastRestored')); } };
-document.addEventListener('click',e=>{ let cp=e.target.closest('[data-copy]'); if(cp){ e.preventDefault(); e.stopPropagation(); navigator.clipboard?.writeText(cp.dataset.copy); toast(t('toastCopied')); } });
+document.addEventListener('click',e=>{
+  let cp=e.target.closest('[data-copy]');
+  if(cp){ e.preventDefault(); e.stopPropagation(); navigator.clipboard?.writeText(cp.dataset.copy); toast(t('toastCopied')); return; }
+  let vc=e.target.closest('[data-vcard]');
+  if(vc){ e.preventDefault(); e.stopPropagation(); let c=contacts.find(x=>val(x,'Contact_ID')===vc.dataset.vcard); if(c) downloadVCard(c); return; }
+  let vcn=e.target.closest('[data-vcard-num]');
+  if(vcn){ e.preventDefault(); e.stopPropagation(); let c=contacts.find(x=>val(x,'Mobile')===vcn.dataset.vcardNum) || (activeDrawerContactId ? contacts.find(x=>val(x,'Contact_ID')===activeDrawerContactId) : null); if(c) downloadVCard(c); return; }
+});
 
 /* ===== Smart namecard scan intake (Gemini Flash Vision + Google Apps Script) ===== */
 const SCANNED_CARDS_KEY='idd_bim_cpg_scanned_cards_v1';
@@ -2061,6 +2174,7 @@ async function processNamecardFile(file){
     pendingExtractedCards=parsedList;
     
     if(parsedList.length>0){
+      if(window.navigator?.vibrate) window.navigator.vibrate([40, 60, 40]);
       renderMultiCardBar();
       selectMultiCard(0);
       const statusText=parsedList.length>1
@@ -2198,6 +2312,38 @@ function setWizardStep(step) {
   }
 }
 
+/* ===== vCard (.vcf) Generator for iOS / Android Phonebook ===== */
+function downloadVCard(c) {
+  if (!c) return;
+  const name = val(c, 'Họ tên') || 'Contact';
+  const title = val(c, 'Chức danh (VI)') || val(c, 'Job Title (EN)') || '';
+  const org = val(c, 'Công ty / Tổ chức') || val(c, 'Tên ngắn') || '';
+  const mobile = val(c, 'Mobile') || '';
+  const phone = val(c, 'Điện thoại bàn') || '';
+  const email = val(c, 'Email chính') || '';
+  const email2 = val(c, 'Email phụ') || '';
+  const site = val(c, 'Website') || '';
+  const adr = val(c, 'Địa chỉ') || '';
+  const city = val(c, 'Thành phố') || '';
+  const country = val(c, 'Quốc gia') || '';
+  const note = val(c, 'Ghi chú kiểm tra') || 'IDD BIM CPG Namecard Directory';
+
+  let vcard = `BEGIN:VCARD\r\nVERSION:3.0\r\nFN:${name}\r\nN:;${name};;;\r\n`;
+  if (org) vcard += `ORG:${org}\r\n`;
+  if (title) vcard += `TITLE:${title}\r\n`;
+  if (mobile) vcard += `TEL;TYPE=CELL,VOICE:${mobile}\r\n`;
+  if (phone) vcard += `TEL;TYPE=WORK,VOICE:${phone}\r\n`;
+  if (email) vcard += `EMAIL;TYPE=INTERNET,PREF:${email}\r\n`;
+  if (email2) vcard += `EMAIL;TYPE=INTERNET:${email2}\r\n`;
+  if (site) vcard += `URL:${site.startsWith('http') ? site : 'https://' + site}\r\n`;
+  if (adr || city || country) vcard += `ADR;TYPE=WORK:;;${adr};${city};;;${country}\r\n`;
+  if (note) vcard += `NOTE:${note}\r\n`;
+  vcard += `END:VCARD\r\n`;
+
+  downloadBlob(vcard, `${name.replace(/\s+/g, '_')}.vcf`, 'text/vcard;charset=utf-8');
+  toast(currentLang === 'en' ? `Exported vCard for ${name}` : `Đã tải danh bạ (.vcf) của ${name}`);
+}
+
 let wizardEventsInitialized = false;
 function initWizardEvents() {
   if (wizardEventsInitialized) return;
@@ -2238,6 +2384,54 @@ function initWizardEvents() {
       currentView = tab.dataset.view;
       render();
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Mobile Floating Action Button (FAB) Center Scan Action
+  $('#mScanFab')?.addEventListener('click', () => {
+    openEdit(null);
+  });
+
+  // Camera direct snap button
+  $('#scanCameraBtn')?.addEventListener('click', () => {
+    $('#scanCamera')?.click();
+  });
+  $('#scanCamera')?.addEventListener('change', e => {
+    const f = e.target.files?.[0];
+    if (f) processNamecardFile(f);
+  });
+
+  // Horizontal Quick Filter Chips Controller
+  $('#mobileChipsBar')?.addEventListener('click', e => {
+    const chip = e.target.closest('.chip-btn');
+    if (!chip) return;
+    $$('.chip-btn').forEach(b => b.classList.toggle('active', b === chip));
+    chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+    const type = chip.dataset.chipType;
+    const val = chip.dataset.chipVal || '';
+
+    if (type === 'all') {
+      $('#search').value = '';
+      if ($('#role')) $('#role').value = '';
+      if ($('#industry')) $('#industry').value = '';
+      if ($('#country')) $('#country').value = '';
+    } else if (type === 'role') {
+      if ($('#role')) $('#role').value = val;
+    } else if (type === 'industry') {
+      if ($('#industry')) $('#industry').value = val;
+    } else if (type === 'country') {
+      if ($('#country')) $('#country').value = val;
+    }
+    render();
+  });
+
+  // Auto-scroll input into comfortable view on mobile when focused
+  $$('#editModal input, #editModal select, #editModal textarea').forEach(el => {
+    el.addEventListener('focus', () => {
+      if (window.innerWidth <= 768) {
+        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 120);
+      }
     });
   });
 }
@@ -2757,7 +2951,7 @@ showContact=function(id){
     localizedDrawerSection(c,t('drawerOrganization'),[[t('labelCompany'),'Công ty / Tổ chức'],[t('labelCountry'),'Quốc gia'],[t('labelCity'),'Thành phố'],[t('labelAddress'),'Địa chỉ']])+
     `<div class="drawer-section"><h3>${esc(t('drawerOriginalCards'))}</h3><div class="linked-cards">${linked.map(x=>`<div class="linked-card" data-source="${esc(x.Source)}"><img src="${x.Image}" alt="${esc(x.Name)}"/><div><span>${esc(x.Card_ID)}</span><span>${esc(x.Source)}</span></div></div>`).join('')}</div></div>`+
     localizedDrawerSection(c,t('drawerDataControl'),[[t('labelConfidence'),'Độ tin cậy'],[t('labelCardSource'),'Nguồn card'],[t('labelReviewNote'),'Ghi chú kiểm tra']])+
-    `<div class="drawer-actions"><button class="btn primary" data-edit="${esc(id)}"><svg class="icon"><use href="#i-edit"/></svg>${esc(t('editProfile'))}</button>${val(c,'Email chính')?`<a class="btn" data-smart href="${outlookUrl(val(c,'Email chính'))}" target="_blank" rel="noopener noreferrer"><svg class="icon"><use href="#i-mail"/></svg>Outlook</a>`:''}${val(c,'Mobile')?`<button class="btn" data-mobile="${esc(val(c,'Mobile'))}" data-mobile-name="${esc(val(c,'Họ tên'))}" data-mobile-country="${esc(val(c,'Quốc gia'))}"><svg class="icon"><use href="#i-message"/></svg>${esc(t('mobileApps'))}</button>`:''}${val(c,'Website')?`<a class="btn" data-smart href="${safeWebsiteUrl(val(c,'Website'))}" target="_blank" rel="noopener noreferrer"><svg class="icon"><use href="#i-globe"/></svg>Website</a>`:''}</div>`;
+    `<div class="drawer-actions"><button class="btn primary" data-edit="${esc(id)}"><svg class="icon"><use href="#i-edit"/></svg>${esc(t('editProfile'))}</button><button class="btn" data-vcard="${esc(id)}" title="Lưu danh bạ vào điện thoại"><svg class="icon"><use href="#i-download"/></svg>${currentLang==='en'?'vCard (.vcf)':'Lưu danh bạ (.vcf)'}</button>${val(c,'Email chính')?`<a class="btn" data-smart href="${outlookUrl(val(c,'Email chính'))}" target="_blank" rel="noopener noreferrer"><svg class="icon"><use href="#i-mail"/></svg>Outlook</a>`:''}${val(c,'Mobile')?`<button class="btn" data-mobile="${esc(val(c,'Mobile'))}" data-mobile-name="${esc(val(c,'Họ tên'))}" data-mobile-country="${esc(val(c,'Quốc gia'))}"><svg class="icon"><use href="#i-message"/></svg>${esc(t('mobileApps'))}</button>`:''}${val(c,'Website')?`<a class="btn" data-smart href="${safeWebsiteUrl(val(c,'Website'))}" target="_blank" rel="noopener noreferrer"><svg class="icon"><use href="#i-globe"/></svg>Website</a>`:''}</div>`;
   $('#overlay').classList.add('show');$('#drawer').classList.add('open');
 };
 
