@@ -793,124 +793,132 @@ body{font-size:14px;line-height:1.45}
 }
 
 @media (max-width: 768px) {
-  html { font-size: 14.5px; }
+  html, body {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    position: relative !important;
+    font-size: 14px;
+  }
+  * {
+    box-sizing: border-box !important;
+  }
+  .app, .main, .workspace, .pagehead, .topbar {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
   
   /* Clean Non-Colliding Sticky Topbar */
   .topbar {
-    height: 60px !important;
+    height: 56px !important;
     position: sticky !important;
     top: 0 !important;
     z-index: 50 !important;
-    box-shadow: 0 4px 20px rgba(0,0,0,.04) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.04) !important;
+    width: 100% !important;
   }
   .topbar-inner {
-    padding: 0 12px !important;
-    min-height: 60px !important;
-    height: 60px !important;
+    padding: 0 10px !important;
+    min-height: 56px !important;
+    height: 56px !important;
     flex-wrap: nowrap !important;
     justify-content: space-between !important;
-    gap: 8px !important;
+    gap: 6px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
   .brand {
-    min-width: auto !important;
-    gap: 8px !important;
-    flex: 1 !important;
+    min-width: 0 !important;
+    gap: 7px !important;
+    flex: 1 1 auto !important;
+    max-width: calc(100% - 145px) !important;
   }
   .brandmark {
-    width: 38px !important;
-    height: 32px !important;
+    width: 32px !important;
+    height: 28px !important;
     padding: 2px !important;
-    border-radius: 9px !important;
+    border-radius: 8px !important;
+    flex-shrink: 0 !important;
   }
   .brandtext b {
-    font-size: 13.5px !important;
+    font-size: 12.5px !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    max-width: 130px !important;
+    display: block !important;
   }
   .brandtext span {
     display: none !important;
   }
 
-  /* Hide clumsy wrapped top nav on phone, active on bottom bar */
+  /* Hide wrapped top nav on phone, active on bottom bar */
   .topbar .nav {
     display: none !important;
   }
 
   .topactions {
     margin-left: auto !important;
-    gap: 6px !important;
+    gap: 4px !important;
     flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
   }
-  #userBadge {
+  #userBadge, #lockBtn, #addBtn {
     display: none !important;
   }
-  #lockBtn {
-    display: none !important;
-  }
-  #helpTopBtn {
-    width: 36px !important;
-    height: 36px !important;
-    border-radius: 9px !important;
-  }
-  #addBtn {
-    height: 36px !important;
-    padding: 0 10px !important;
-    font-size: 12px !important;
-    border-radius: 9px !important;
-  }
-  #addBtn span {
-    display: none !important;
-  }
-  #moreBtn {
-    width: 36px !important;
-    height: 36px !important;
-    border-radius: 9px !important;
+  #helpTopBtn, #moreBtn {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
   }
   .langswitch {
     padding: 2px !important;
     border-radius: 999px !important;
-    height: 32px !important;
+    height: 28px !important;
   }
   .langswitch button {
-    height: 28px !important;
-    min-width: 34px !important;
-    font-size: 11px !important;
-    padding: 0 7px !important;
+    height: 24px !important;
+    min-width: 28px !important;
+    font-size: 10.5px !important;
+    padding: 0 6px !important;
   }
 
   /* Main & Pagehead on Mobile */
   .main {
-    padding: 14px 12px 96px !important; /* reserve room for bottom nav */
+    padding: 10px 10px 92px !important; /* room for bottom nav */
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
   .pagehead {
     display: block !important;
-    padding: 16px 14px !important;
-    border-radius: 16px !important;
-    margin-bottom: 14px !important;
+    padding: 14px 12px !important;
+    border-radius: 14px !important;
+    margin-bottom: 12px !important;
     min-height: auto !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
   .pagehead h1 {
-    font-size: 20px !important;
+    font-size: 19px !important;
     line-height: 1.25 !important;
     letter-spacing: -.02em !important;
   }
   .pagehead p {
-    font-size: 12.5px !important;
+    font-size: 12px !important;
     margin-top: 4px !important;
     line-height: 1.4 !important;
   }
   .hero-meta-line {
     display: flex !important;
-    gap: 6px !important;
+    gap: 5px !important;
     flex-wrap: wrap !important;
-    margin-top: 10px !important;
+    margin-top: 8px !important;
   }
   .hero-meta-line span {
-    font-size: 10px !important;
-    height: 26px !important;
-    padding: 0 8px !important;
+    font-size: 9.5px !important;
+    height: 24px !important;
+    padding: 0 7px !important;
   }
   .hero-brand-panel {
     display: none !important;
@@ -918,65 +926,163 @@ body{font-size:14px;line-height:1.45}
 
   /* Workspace & Toolbar */
   .workspace {
-    border-radius: 16px !important;
+    border-radius: 14px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
   }
   .toolbar {
-    padding: 10px 12px !important;
-    gap: 8px !important;
+    padding: 10px 10px 6px !important;
+    gap: 6px !important;
     flex-direction: column !important;
     align-items: stretch !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
   .searchbox {
     width: 100% !important;
-    height: 40px !important;
-  }
-  .toolbar .select {
-    width: 100% !important;
-    max-width: 100% !important;
     height: 38px !important;
+    border-radius: 10px !important;
+    padding: 0 9px !important;
   }
-  .view-switch {
+  .searchbox input {
+    font-size: 12.5px !important;
+    width: 100% !important;
+  }
+  .searchbox kbd {
+    display: none !important;
+  }
+  .toolbar .select, .toolbar-spacer, .view-switch {
     display: none !important;
   }
 
-  /* Horizontal Filter Chips Bar */
+  /* Horizontal Filter Chips Bar - Strictly Contained with Smooth Scrolling */
   .mobile-chips-bar {
-    display: flex;
-    gap: 6px;
-    overflow-x: auto;
-    padding: 2px 2px 6px;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
+    display: flex !important;
+    gap: 6px !important;
+    overflow-x: auto !important;
+    overscroll-behavior-x: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 2px 0 4px !important;
+    padding: 2px 1px 6px !important;
+    box-sizing: border-box !important;
   }
   .mobile-chips-bar::-webkit-scrollbar {
-    display: none;
+    display: none !important;
   }
   .chip-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 6px 12px;
-    border-radius: 999px;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
-    color: #475569;
-    font-size: 11.5px;
-    font-weight: 650;
-    white-space: nowrap;
-    flex-shrink: 0;
-    cursor: pointer;
-    transition: all .2s ease;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 5px 11px !important;
+    border-radius: 999px !important;
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+    font-size: 11px !important;
+    font-weight: 650 !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    cursor: pointer !important;
+    transition: all .2s ease !important;
   }
   .chip-btn:hover {
-    background: #e2e8f0;
-    color: #1e293b;
+    background: #e2e8f0 !important;
+    color: #1e293b !important;
   }
   .chip-btn.active {
-    background: #fff3d9;
-    border-color: #f4a61c;
-    color: #b45309;
-    font-weight: 800;
-    box-shadow: 0 2px 8px rgba(244, 166, 28, 0.2);
+    background: #fff3d9 !important;
+    border-color: #f4a61c !important;
+    color: #b45309 !important;
+    font-weight: 800 !important;
+    box-shadow: 0 2px 6px rgba(244, 166, 28, 0.2) !important;
+  }
+
+  /* Table on Mobile: Card-like Rows (Zero Horizontal Overflow) */
+  .tablewrap {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .tablewrap table {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
+  }
+  .tablewrap thead {
+    display: none !important;
+  }
+  .tablewrap tbody {
+    display: block !important;
+    width: 100% !important;
+  }
+  .tablewrap tr.data-row {
+    display: block !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid var(--line) !important;
+    padding: 12px 12px !important;
+    position: relative !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+  }
+  .tablewrap tr.data-row:active {
+    background: #f8fafc !important;
+  }
+  .tablewrap td {
+    display: block !important;
+    padding: 0 !important;
+    border-bottom: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .tablewrap td:nth-child(1) { /* Person */
+    margin-bottom: 3px !important;
+    padding-right: 68px !important; /* space for badge */
+  }
+  .tablewrap td:nth-child(2) { /* Company & Job Title */
+    margin-bottom: 5px !important;
+  }
+  .tablewrap td:nth-child(3) { /* Role Pill */
+    display: inline-block !important;
+    margin-bottom: 6px !important;
+  }
+  .tablewrap td:nth-child(4) { /* Contact actions */
+    margin-bottom: 4px !important;
+  }
+  .tablewrap td:nth-child(4) .contact-stack {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 8px 12px !important;
+  }
+  .tablewrap td:nth-child(5) { /* Location */
+    font-size: 11px !important;
+    color: #64748b !important;
+    margin-bottom: 2px !important;
+  }
+  .tablewrap td:nth-child(6) { /* Card count badge */
+    position: absolute !important;
+    top: 12px !important;
+    right: 12px !important;
+    display: block !important;
+    width: auto !important;
+  }
+  .tablewrap td:nth-child(6) .cardcount {
+    font-size: 11px !important;
+  }
+
+  .cards-grid, .company-grid {
+    grid-template-columns: 1fr !important;
+    padding: 10px !important;
+    gap: 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   /* Executive iOS-style Bottom Navigation Bar with Center FAB */
@@ -986,16 +1092,19 @@ body{font-size:14px;line-height:1.45}
     bottom: 0 !important;
     left: 0 !important;
     right: 0 !important;
-    height: 64px !important;
-    background: rgba(255, 255, 255, 0.96) !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    height: 58px !important;
+    background: rgba(255, 255, 255, 0.98) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
-    border-top: 1px solid rgba(216, 221, 230, 0.8) !important;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
+    border-top: 1px solid rgba(216, 221, 230, 0.85) !important;
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.05) !important;
     z-index: 999 !important;
-    padding: 6px 8px 8px !important;
+    padding: 4px 6px env(safe-area-inset-bottom, 6px) !important;
     align-items: center !important;
     justify-content: space-around !important;
+    box-sizing: border-box !important;
   }
   .mobile-nav-tab {
     flex: 1 !important;
@@ -1003,20 +1112,20 @@ body{font-size:14px;line-height:1.45}
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 3px !important;
+    gap: 2px !important;
     border: 0 !important;
     background: transparent !important;
     color: #64748b !important;
-    font-size: 10.5px !important;
+    font-size: 10px !important;
     font-weight: 650 !important;
     position: relative !important;
-    padding: 4px 0 !important;
-    border-radius: 10px !important;
+    padding: 3px 0 !important;
+    border-radius: 8px !important;
     transition: all .2s ease !important;
   }
   .mobile-nav-tab .icon {
-    width: 20px !important;
-    height: 20px !important;
+    width: 19px !important;
+    height: 19px !important;
   }
   .mobile-nav-tab.active {
     color: #b45309 !important;
@@ -1032,11 +1141,11 @@ body{font-size:14px;line-height:1.45}
     right: 14% !important;
     background: #f4a61c !important;
     color: #fff !important;
-    font-size: 9px !important;
+    font-size: 8.5px !important;
     font-weight: 800 !important;
-    padding: 1px 5px !important;
+    padding: 1px 4px !important;
     border-radius: 999px !important;
-    min-width: 16px !important;
+    min-width: 15px !important;
     text-align: center !important;
     line-height: 1.2 !important;
   }
@@ -1046,47 +1155,47 @@ body{font-size:14px;line-height:1.45}
   }
 
   .mobile-nav-fab {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--brand-red), var(--brand-orange));
-    color: #fff;
-    border: 3px solid #fff;
-    box-shadow: 0 6px 20px rgba(244, 166, 28, 0.45);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-top: -20px;
-    cursor: pointer;
-    flex-shrink: 0;
-    position: relative;
-    transition: transform .2s ease, box-shadow .2s ease;
+    width: 46px !important;
+    height: 46px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, var(--brand-red), var(--brand-orange)) !important;
+    color: #fff !important;
+    border: 3px solid #fff !important;
+    box-shadow: 0 5px 18px rgba(244, 166, 28, 0.45) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-top: -18px !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+    position: relative !important;
+    transition: transform .2s ease, box-shadow .2s ease !important;
   }
   .mobile-nav-fab:active {
-    transform: scale(0.92);
+    transform: scale(0.92) !important;
   }
   .mobile-nav-fab .icon {
-    width: 20px;
-    height: 20px;
-    stroke-width: 2.2;
+    width: 19px !important;
+    height: 19px !important;
+    stroke-width: 2.2 !important;
   }
   .mobile-nav-fab span {
-    font-size: 7.5px;
-    font-weight: 850;
-    margin-top: 1px;
-    text-transform: uppercase;
-    letter-spacing: .02em;
+    font-size: 7px !important;
+    font-weight: 850 !important;
+    margin-top: 1px !important;
+    text-transform: uppercase !important;
+    letter-spacing: .02em !important;
   }
 
   /* Help Bubble on mobile above bottom nav */
   .help-bubble-wrap {
-    bottom: 74px !important;
-    right: 14px !important;
+    bottom: 66px !important;
+    right: 10px !important;
   }
   .help-bubble-btn {
-    width: 44px !important;
-    height: 44px !important;
+    width: 38px !important;
+    height: 38px !important;
   }
 
   /* Ergonomic Bottom Sheet Modals on mobile */
@@ -1094,21 +1203,22 @@ body{font-size:14px;line-height:1.45}
     width: 100vw !important;
     max-width: 100vw !important;
     max-height: 92vh !important;
-    border-radius: 20px 20px 0 0 !important;
+    border-radius: 18px 18px 0 0 !important;
     bottom: 0 !important;
     top: auto !important;
     left: 0 !important;
     transform: translateY(100%) !important;
     transition: transform .25s cubic-bezier(.34,1.56,.64,1) !important;
+    box-sizing: border-box !important;
   }
   .modal.show {
     transform: translateY(0) !important;
   }
   .modal-head {
-    padding: 14px 16px !important;
+    padding: 12px 14px !important;
   }
   .modal-body {
-    padding: 14px 16px 20px !important;
+    padding: 12px 14px 18px !important;
   }
   .formgrid {
     grid-template-columns: 1fr !important;
