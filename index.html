@@ -1129,6 +1129,10 @@ body{font-size:14px;line-height:1.45}
   <div class="topactions">
     <div id="userBadge" style="display:none;align-items:center;gap:6px;font-size:12px;font-weight:750;color:#4a5568;background:#fff;border:1px solid #d8dde6;border-radius:999px;padding:4px 11px;"></div>
     <button class="btn small" id="lockBtn" style="display:none;font-size:12px;padding:0 10px;" title="Khóa màn hình">🔒 Khóa</button>
+    <a class="btn small ghost" href="https://idd-bim-dashboard.vercel.app/" target="_blank" rel="noopener noreferrer" title="Mở IDD-BIM Live Dashboard" style="display:inline-flex;gap:5px;font-size:11.5px;color:#475569;text-decoration:none;padding:0 8px;">
+      <svg class="icon" style="width:14px;height:14px;"><use href="#i-grid"/></svg>
+      <span class="label-desk">Dashboard ↗</span>
+    </a>
     <button class="iconbtn" id="helpTopBtn" aria-label="Hướng dẫn" title="Hướng dẫn & Quy tắc sử dụng"><svg class="icon"><use href="#i-help"/></svg></button>
     <button class="btn primary" id="addBtn"><svg class="icon"><use href="#i-plus"/></svg><span>Quét namecard</span></button>
     <button class="iconbtn" id="moreBtn" aria-label="Thêm"><svg class="icon"><use href="#i-more"/></svg></button>
@@ -1191,6 +1195,15 @@ body{font-size:14px;line-height:1.45}
 </div>
 
 <div class="menu" id="moreMenu">
+  <a href="https://idd-bim-dashboard.vercel.app/" target="_blank" rel="noopener noreferrer" style="display:flex;gap:8px;align-items:center;padding:9px 10px;font-size:11px;color:#1e293b;text-decoration:none;border-radius:8px;font-weight:600;">
+    <svg class="icon" style="width:14px;height:14px;color:#f4a61c;"><use href="#i-grid"/></svg>
+    <span>IDD BIM Dashboard ↗</span>
+  </a>
+  <a href="https://docs.google.com/spreadsheets/d/13XsLUK792UkdDuXYHSdjIGJPX7AazQt6hROtTa0LRCI/edit" target="_blank" rel="noopener noreferrer" style="display:flex;gap:8px;align-items:center;padding:9px 10px;font-size:11px;color:#059669;text-decoration:none;border-radius:8px;font-weight:600;">
+    <svg class="icon" style="width:14px;height:14px;color:#059669;"><use href="#i-card"/></svg>
+    <span>Mở Master Google Sheet ↗</span>
+  </a>
+  <div style="height:1px;background:#f1f5f9;margin:4px 0;"></div>
   <button id="exportBtn"><svg class="icon"><use href="#i-download"/></svg>Xuất contacts CSV</button>
   <button id="backupBtn"><svg class="icon"><use href="#i-save"/></svg>Backup JSON</button>
   <button id="resetBtn"><svg class="icon"><use href="#i-refresh"/></svg>Khôi phục dữ liệu gốc</button>
